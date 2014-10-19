@@ -178,13 +178,13 @@ Collection of all Jobs.
 ### Create a new Job [POST]
 Accepts following x-www-form-urlencoded vars:
 
-| var   | required or opt. | ver type           | description                                                                     |
+| var   | default value    | ver type           | description                                                                     |
 |-------|------------------|--------------------|---------------------------------------------------------------------------------|
-| type  | required         | 'learn' or 'reset' | "learn" start a kees learning windows, "reset" clear all knowledge (warning!).  |
-| db    | required         | string             | the knowledge db id                                                             |
-| index | required in learn| "pings" or uri     | if set to "pings" get resources to load from a ping server, else from url.      |
-
-
+| type  | learn            | 'learn' or 'reset' | "learn" start a kees learning windows, "reset" clear all knowledge (warning!).  |
+| db    | --               | string             | the knowledge db id                                                             |
+| index | pings            | "pings" or url     | if set to "pings" get resources to load from a ping server, else from url.      |
+| graph | provenance       | "provenance or "default" or url  | RDF grapf to be use for data: with 'provenance' uses the uri of data provenance to name graph, 
+with 'default' uses the default graph for all data,otherwhise you can specify an uri for the graph |
 
 + Authorization ... [Base64](http://en.wikipedia.org/wiki/Base64) encoded string literal in form _"username:password"_ preceeded by authorization method and its space.
 
