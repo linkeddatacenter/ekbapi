@@ -22,6 +22,7 @@ Here is a quik summary of eKB RESTful APIs:
 |----------------|-----------------|-----|-----|------|--------|------------|-------|
 | Job management | /ekb/jobs       | X   |     | X    | X      | http Basic |       |
 |                | /ekb/job/{id}   | X   |     |      | X      | http Basic |       |
+|                | /ekb/postjob    | X   |     |      |        |            | display an html form |
 | SPARQL         | /{kb}/query     | X   |     | X    |        | http Basic | (a)   |
 
 
@@ -37,7 +38,7 @@ Depending from the type of eKB service you have subscribed you can get benefit o
 | Stardog 2.2.2   | http://docs.stardog.apiary.io/ |
 
 
-**Interactive resources**
+###Interactive resources
 
 eKB provides a set of interactive forms callable from any html compliant device.
 
@@ -49,6 +50,32 @@ eKB provides a set of interactive forms callable from any html compliant device.
 
 (a) depending from rdf quadstore provider, in above table are shown stardog URLs.
 
+###Typical Server Responses
+
+
+
+Typycal http status
+ * `200` Request was successful
+ * `201` Request was successful and the resource was created
+ * `400` Indicates parse errors or that the transaction identifier specified for an operation is invalid or does not correspond to a known transaction.
+ * `401` Request is unauthorized.
+ * `403` User attempting to perform the operation does not exist, their username or password is invalid, or they do not have the proper credentials to perform the action.
+ * `404` A resource involved in the operation, such as a user or transaction, does not exist
+ * `409` A conflict for some database operations; for example, creating a database that already exists
+ * `500` An unspecified failure in the server
+ * `503` The eKB serve is learnig new resources or is reasoning. Quesy is temporary disabled.
+
+Error bayload representation is based on [ietf specs](http://tools.ietf.org/html/draft-nottingham-http-problem-04).
+Here is an example of a 404 error in json representation:
+
+        Error 404 example 
+        {
+            problemType: "http://dbpedia.org/resource/Category:HTTP_status_codes"
+            title: "Resource not found"
+            detail: "Resource report 5441392469671 not found."
+            problemInstance: "http://dbpedia.org/resource/HTTP_404"
+            httpStatus: 404
+        }
 
 # Group SPARQL end-point
 Access to the knowledge base.
@@ -223,8 +250,6 @@ Accepts following x-www-form-urlencoded vars:
 
 
 
-
-
 ## Job [/ekb/job/{id}]
 A single Job object with all its details.
 
@@ -278,3 +303,12 @@ A single Job object with all its details.
 + Response 200 (application/json)
 
         "5443bd70785dc"
+
+
+## Post Job Form [/ekb/postjobform]
+Just an interactive utility to display a simple form to post a new job.
+
+### Display form [GET]
+Display an html form 
+
++ Response 200
