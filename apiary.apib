@@ -1,0 +1,281 @@
+FORMAT: 1A
+
+# ekb
+[eKB](http://www.e-artspace.com/home/service/ekb) is a service by [E-Artspace](http://www.e-artspace.com) (c) 2014 
+that implements the [KEES architecture](http://www.e-artspace.com/home/project/kees).
+
+## Overview
+eKB provides you with some RESTful APIs and some interactive resouces. 
+To access both you need to provide your eKB credentials using 
+[http](http://en.wikipedia.org/wiki/Basic_access_authentication).
+
+
+RESTful APIs support a full set of state representation (json, xml, txt) 
+with [http content negotiation](http://en.wikipedia.org/wiki/Content_negotiation). 
+You can also use just a simple browser 
+(also a mobile one) to access all eKB feature because text/html representation is also supported.
+
+
+Here is a quik summary of eKB RESTful APIs:
+
+| Group          | Resource        | GET | PUT | POST | DELETE | Auth Type  | Notes |
+|----------------|-----------------|-----|-----|------|--------|------------|-------|
+| Job management | /ekb/jobs       | X   |     | X    | X      | http Basic |       |
+|                | /ekb/job/{id}   | X   |     |      | X      | http Basic |       |
+| SPARQL         | /{kb}/query     | X   |     | X    |        | http Basic | (a)   |
+
+
+(a) This end point implements [SPARQL 1.1 protocol](http://www.w3.org/TR/sparql11-protocol/) 
+ for [query](http://www.w3.org/TR/sparql11-query/) and [update](http://www.w3.org/TR/sparql11-update/) language specifications.
+ It also supports [Service Description](http://www.w3.org/TR/sparql11-service-description/) specification.
+
+Beside these, eKB hub allows a transparent access to backing quadstore specific APIs.
+Depending from the type of eKB service you have subscribed you can get benefit of all vendor apis:
+
+| Quadstore vendor| APIs documentation URL         |
+|-----------------|--------------------------------|
+| Stardog 2.2.2   | http://docs.stardog.apiary.io/ |
+
+
+**Interactive resources**
+
+eKB provides a set of interactive forms callable from any html compliant device.
+
+| Function           | Resouce           | Auth Type  | Notes |
+|------------------- |-------------------|------------|-------|
+| User management    | /#/security/users | web form   | (a)   |
+| Interactive SPARQL | /{db}#!/query     | http Basic | (a)   |
+| Job submission     | /ekb/postjob      | http Basic |       |
+
+(a) depending from rdf quadstore provider, in above table are shown stardog URLs.
+
+
+# Group SPARQL end-point
+Access to the knowledge base.
+
+## SPARQL query [/{db}/query]
+This end point implements [SPARQL 1.1 protocol](http://www.w3.org/TR/sparql11-protocol/) 
+for [query](http://www.w3.org/TR/sparql11-query/) and [update](http://www.w3.org/TR/sparql11-update/) language specifications.
+It also supports [Service Description](http://www.w3.org/TR/sparql11-service-description/) specification.
+
++ Model (application/sparql-results+xml)
+
+    See [SPARQL Query Results XML Format](http://www.w3.org/TR/rdf-sparql-XMLres/) for more info.
+
+    + Body
+
+            <?xml version='1.0' encoding='UTF-8'?>
+            <sparql xmlns='http://www.w3.org/2005/sparql-results#'>
+                <head>
+                    <variable name='s'/>
+                </head>
+                <results>
+                    <result>
+                        <binding name='s'>
+                            <uri>tag:ekb:api:#V1</uri>
+                        </binding>
+                    </result>
+                </results>
+            </sparql> 
+
+### SPARQL query via get [GET]
+If no query parameter is supplied it returns 
+[end-point service Description](http://www.w3.org/TR/sparql11-service-description/) in RDF serialization.
+
++ Authorization ... [Base64](http://en.wikipedia.org/wiki/Base64) encoded string literal in form _"username:password"_ preceeded by authorization method and its space.
+
++ Parameters
+    + db (required, string, `"myDb"`) ... `id` of the Knowlege base db 
+    + query (optional, string, `"SELECT.."`) ... `id` of the Knowlege base db 
+
++ Response 200
+    [SPARQL query][]
+
+
+
+### SPARQL query via post [POST]
+Post action can be used for queries whose length exceeds the maximum allowed number of characters in a URI.
+The body of the request should be same form-encoded parameters of the GET variant.
+
++ Authorization ... [Base64](http://en.wikipedia.org/wiki/Base64) encoded string literal in form _"username:password"_ preceeded by authorization method and its space.
+
++ Parameters
+    + db (required, string, `"myDb"`) ... `id` of the Knowlege base db 
+
++ Request (application/x-www-form-urlencoded)
+
+            query=select%20%3Fs%20where%20%7Bgraph%20%3Fg%7B%3Fs%20%3Fp%20%3Fo%7D%7D
+            
++ Response 200 (application/sparql-results+xml)
+
+
+
+
+# Group Job management
+Job management APIs allow to launch administrative task that operate on the knowledge base. Jobs are executed asyncronusly as soon as there are enough resources available in the system.
+
+Each job is provided with an unique id known only to the user that posted it. The Job id is used to retrive the job state.The job status can be inspected before and during execution. After execution the job status contains the full execution log (job execution report).
+
+By default jobs report are retained for one day before to be deleted.
+
+
+
+## Job Collection [/ekb/jobs]
+Collection of all Jobs.
+
++ Model (application/json)
+
+    Json representation of Jobs Collection Resource. The Jobs resources in collections are embedded. Note the embedded Jobs resource are incomplete representations of the Jobs in question. Use the respective Jobs link to retrieve its full representation.
+
+    + Headers
+    
+            Link: <jobs>; rel="self"
+
+    + Body
+
+            [  
+               {  
+                  "id":"5442847218008",
+                  "timestamp":1413645426,
+                  "lastUpdate":"2014-10-18T15:17:06+00:00",
+                  "reportSize":0,
+                  "uri":"job\/5442847218008",
+                  "status":"waiting"
+               },
+               {  
+                  "id":"5443bd70785dc",
+                  "timestamp":1413725552,
+                  "lastUpdate":"2014-10-19T13:32:32+00:00",
+                  "reportSize":0,
+                  "uri":"job\/5443bd70785dc",
+                  "status":"ready"
+               },
+               {  
+                  "id":"5443bd792b8fa",
+                  "timestamp":1413725561,
+                  "lastUpdate":"2014-10-19T13:32:41+00:00",
+                  "reportSize":0,
+                  "uri":"job\/5443bd792b8fa",
+                  "status":"learning"
+               }
+            ]   
+
+### List all Jobs [GET]
+
++ Authorization ... [Base64](http://en.wikipedia.org/wiki/Base64) encoded string literal in form _"username:password"_ preceeded by authorization method and its space.
+
++ Request
+
+    + Headers
+        
+            Accept: application/json
+ 
++ Response 200 (application/json)
+
+    [Job Collection][]
+
+
+### Create a new Job [POST]
+Accepts following x-www-form-urlencoded vars:
+
+| var   | required or opt. | ver type           | description                                                                     |
+|-------|------------------|--------------------|---------------------------------------------------------------------------------|
+| type  | required         | 'learn' or 'reset' | "learn" start a kees learning windows, "reset" clear all knowledge (warning!).  |
+| db    | required         | string             | the knowledge db id                                                             |
+| index | required in learn| "pings" or uri     | if set to "pings" get resources to load from a ping server, else from url.      |
+
+
+
++ Authorization ... [Base64](http://en.wikipedia.org/wiki/Base64) encoded string literal in form _"username:password"_ preceeded by authorization method and its space.
+
++ Request (application/x-www-form-urlencoded)
+
+    + Headers
+        
+            Accept: application/json
+    
+    + Body
+
+            type=learn&db=myDb&index=pings
+        
++ Response 201 (application/json)
+
+    + Headers
+        
+            Location: job/5443d6992d4f3 
+            Link: <job/5443d6992d4f3>; rel="details",</admin/jobs>; rel="self"
+        
+    + Body
+    
+            "5443bd70785dc"
+
+### Delete all new Jobs [DELETE]
++ Authorization ... [Base64](http://en.wikipedia.org/wiki/Base64) encoded string literal in form _"username:password"_ preceeded by authorization method and its space.
+
++ Request
+
+    + Headers
+        
+            Accept: application/json
+            
++ Response 200 (application/json)
+
+        [ "5443bd70785dc", "5442847218008", "5443bd792b8fa" ]
+
+
+
+
+
+## Job [/ekb/job/{id}]
+A single Job object with all its details.
+
++ Parameters
+    + id (required, string, `"5443bd792b8fa"`) ... `id` of the Job 
+
++ Model (application/json)
+    Json representation of Jobs Resource.
+    
+    + Headers
+
+            Link: <job>; rel="self",<../jobs>; rel="list"
+
+    + Body
+    
+            {
+               "id":"5442847218008",
+               "timestamp":1413645426,
+               "lastUpdate":"2014-10-18T15:17:06+00:00",
+               "reportSize":0,
+               "uri":"5442847218008",
+               "status":"waiting",
+               "execStatus":"-1",
+               "report":"Data not yet available. Please wait a bit and retry"
+            }
+
+
+### Retrieve a Job [GET]
++ Authorization ... [Base64](http://en.wikipedia.org/wiki/Base64) encoded string literal in form _"username:password"_ preceeded by authorization method and its space.
+
++ Request
+
+    + Headers
+        
+            Accept: application/json
+
++ Response 200 (application/json)
+
+    [Job][]
+
+
+### Remove a Job [DELETE]
++ Authorization ... [Base64](http://en.wikipedia.org/wiki/Base64) encoded string literal in form _"username:password"_ preceeded by authorization method and its space.
+
++ Request
+
+    + Headers
+        
+            Accept: application/json
+
++ Response 200 (application/json)
+
+        "5443bd70785dc"
