@@ -3,33 +3,32 @@ FORMAT: 1A
 # eKB APIs
 [eKB](http://www.e-artspace.com/home/service/ekb) is a service provided by [E-Artspace](http://www.e-artspace.com) 
 as part of [LinkedData.Center](http://linkeddata.center) offering.
-
-eKB provides you with some RESTful APIs and some interactive resouces to realize part of
+eKB exposes some RESTful APIs and some interactive resouces to realize part of
 the [KEES architecture](http://www.e-artspace.com/home/project/kees).
 
 
 To access eKB APIs  you need to provide your credentials using 
-[http basic authentication](http://en.wikipedia.org/wiki/Basic_access_authentication) protocol.
+[http basic authentication](http://en.wikipedia.org/wiki/Basic_access_authentication).
 
 
-eKB APIs support a full set of state representation (json, xml, txt) 
-with [http content negotiation](http://en.wikipedia.org/wiki/Content_negotiation). 
-You can also use just a simple web browser to access all eKB feature because text/html 
-representation is  supported.
-
-
-Here is a quik summary of eKB RESTful APIs:
+###RESTful APIs
 
 | Group          | Resource        | GET | PUT | POST | DELETE | Auth Type  | Notes |
 |----------------|-----------------|-----|-----|------|--------|------------|-------|
 | Job management | /ekb/jobs       | X   |     | X    | X      | http Basic |       |
 |                | /ekb/job/{id}   | X   |     |      | X      | http Basic |       |
-|                | /ekb/postjob    | X   |     |      |        |            | display an html form |
 | SPARQL         | /{kb}/query     | X   |     | X    |        | http Basic |       |
 
 
-Beside these, eKB hub allows a transparent access to backing quadstore specific APIs.
-Depending from the type of eKB service you have subscribed you can get benefit of all vendor apis:
+eKB APIs support a full set of state representation (json, xml, txt) 
+with [http content negotiation](http://en.wikipedia.org/wiki/Content_negotiation).
+You can also use just a simple web browser to access all eKB feature because text/html 
+representation is  supported. 
+
+
+eKB allows a transparent access to backing quadstore specific APIs.
+Depending from the type of eKB service you have subscribed you can get benefit 
+of all quadstore vendor web services:
 
 | Quadstore vendor| APIs documentation URL         |
 |-----------------|--------------------------------|
@@ -150,6 +149,10 @@ There are two types of jobs:
 Each job is provided with an unique id known only to the user that posted it. 
 The job state can be inspected before and during execution. 
 After execution the job status contains the full execution log (job execution report).
+
+You can use *_output=mimetype* parameter in any URL to override http content negotiation 
+and forcing your preferred resource representation. 
+The mimetype must be url encoded (i.e. _output=application%2Fjson).
 
 
 ## Job Collection [/ekb/jobs]
