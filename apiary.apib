@@ -4,8 +4,8 @@ FORMAT: 1A
 ![e-artspace logo](http://www.e-artspace.com/home/images/stories/ea/ealogo-small.png)
 
 [eKB](http://www.e-artspace.com/home/service/ekb) is a service provided by [E-Artspace](http://www.e-artspace.com) 
-as part of [LinkedData.Center](http://linkeddata.center) offering.
-eKB exposes some RESTful APIs and some interactive resouces to realize part of
+as part of its [Linked Data offering](http://linkeddata.center).
+It exposes some RESTful APIs and some interactive resouces to realize the core of
 the [KEES architecture](http://www.e-artspace.com/home/project/kees).
 
 
@@ -13,7 +13,7 @@ To access eKB APIs  you need to provide your credentials using
 [http basic authentication](http://en.wikipedia.org/wiki/Basic_access_authentication).
 
 
-###RESTful APIs
+###RESTful APIs overview
 
 | Group          | Resource        | GET | PUT | POST | DELETE | Auth Type  | Notes |
 |----------------|-----------------|-----|-----|------|--------|------------|-------|
@@ -22,10 +22,9 @@ To access eKB APIs  you need to provide your credentials using
 | SPARQL         | /{kb}/query     | X   |     | X    |        | http Basic |       |
 
 
-eKB APIs support a full set of state representation (json, xml, txt) 
-with [http content negotiation](http://en.wikipedia.org/wiki/Content_negotiation).
-You can also use just a simple web browser to access all eKB feature because text/html 
-representation is  supported. 
+eKB APIs support a full set of state representations (json, xml, txt,html) 
+through the [http content negotiation](http://en.wikipedia.org/wiki/Content_negotiation).
+You can access APIs from any web browser or using any programming language. 
 
 
 eKB allows a transparent access to backing quadstore specific APIs.
