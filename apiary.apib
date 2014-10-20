@@ -50,8 +50,6 @@ eKB provides a set of interactive forms callable from any html compliant device.
 
 ###Typical Server Responses
 
-
-
 Typycal http status
  * `200` Request was successful
  * `201` Request was successful and the resource was created
@@ -63,13 +61,17 @@ Typycal http status
  * `500` An unspecified failure in the server
  * `503` The eKB serve is learnig new resources or is reasoning. Quesy is temporary disabled.
 
-Error representation is based on [ietf specs](http://tools.ietf.org/html/draft-nottingham-http-problem-04).
+Error representation is based on [ietf specs](http://tools.ietf.org/html/draft-nottingham-http-problem-07).
 Here is an example of a 404 error in json representation:
+
+       HTTP/1.1 404 Not found
+       Content-Type: application/problem+json
+       Content-Language: en
 
         {
             problemType: "http://dbpedia.org/resource/Category:HTTP_status_codes"
-            title: "Resource not found"
-            detail: "Resource report 5441392469671 not found."
+            title: "Job not found"
+            detail: "Job report 5441392469671 not found."
             problemInstance: "http://dbpedia.org/resource/HTTP_404"
             httpStatus: 404
         }
@@ -113,6 +115,7 @@ If no query parameter is supplied it returns
     + query (optional, string, `"SELECT.."`) ... `id` of the Knowlege base db 
 
 + Response 200
+
     [SPARQL query][]
 
 
@@ -130,22 +133,27 @@ The body of the request should be same form-encoded parameters of the GET varian
 
             query=select%20%3Fs%20where%20%7Bgraph%20%3Fg%7B%3Fs%20%3Fp%20%3Fo%7D%7D
             
-+ Response 200 (application/sparql-results+xml)
++ Response 200
 
+    [SPARQL query][]
 
 
 
 # Group Job management
-Job management APIs allow to launch administrative task that operate on the knowledge base. Jobs are executed asyncronusly as soon as there are enough resources available in the system.
+Job management APIs allow to launch administrative task that operate on the knowledge base. 
+Jobs are executed asyncronusly as soon as there are enough resources available in the system.
 
-Each job is provided with an unique id known only to the user that posted it. The Job id is used to retrive the job state.The job status can be inspected before and during execution. After execution the job status contains the full execution log (job execution report).
+There are two types of jobs:
+ * **learn**: used to initatie a [KEES](http://www.e-artspace.com/home/project/kees) learning and reasoning window, where new data discovered and learned.
+ * **reset**: used to clean all knowledge base (WARNING!)
 
-By default jobs report are retained for one day before to be deleted.
-
+Each job is provided with an unique id known only to the user that posted it. 
+The job state can be inspected before and during execution. 
+After execution the job status contains the full execution log (job execution report).
 
 
 ## Job Collection [/ekb/jobs]
-Collection of all Jobs.
+List and create new Jobs.
 
 + Model (application/json)
 
@@ -185,6 +193,7 @@ Collection of all Jobs.
             ]   
 
 ### List all Jobs [GET]
+Lists your job.  By default, comleted jobs (with execution report) are retained for one day before to be deleted.
 
 + Authorization ... [Base64](http://en.wikipedia.org/wiki/Base64) encoded string literal in form _"username:password"_ preceeded by authorization method and its space.
 
@@ -194,12 +203,14 @@ Collection of all Jobs.
         
             Accept: application/json
  
-+ Response 200 (application/json)
++ Response 200
 
     [Job Collection][]
 
 
 ### Create a new Job [POST]
+Creates a new Job to be executed as soon as possible.
+
 Accepts following x-www-form-urlencoded vars:
 
 | var   | default value    | ver type           | description                                                                     |
@@ -233,6 +244,8 @@ Accepts following x-www-form-urlencoded vars:
             "5443bd70785dc"
 
 ### Delete all new Jobs [DELETE]
+Deletes all your jobs, both the waiting to be executed and the completed ones.
+
 + Authorization ... [Base64](http://en.wikipedia.org/wiki/Base64) encoded string literal in form _"username:password"_ preceeded by authorization method and its space.
 
 + Request
@@ -275,6 +288,8 @@ A single Job object with all its details.
 
 
 ### Retrieve a Job [GET]
+Get a job state representation, completed with all available execution information (job report).
+
 + Authorization ... [Base64](http://en.wikipedia.org/wiki/Base64) encoded string literal in form _"username:password"_ preceeded by authorization method and its space.
 
 + Request
@@ -283,12 +298,12 @@ A single Job object with all its details.
         
             Accept: application/json
 
-+ Response 200 (application/json)
++ Response 200
 
     [Job][]
 
 
-### Remove a Job [DELETE]
+### Delete a Job [DELETE]
 + Authorization ... [Base64](http://en.wikipedia.org/wiki/Base64) encoded string literal in form _"username:password"_ preceeded by authorization method and its space.
 
 + Request
@@ -303,7 +318,7 @@ A single Job object with all its details.
 
 
 ## Post Job Form [/ekb/postjobform]
-Just an interactive utility to display a simple form to post a new job.
+Just an interactive utility to display a simple html form to post a new job. Content negotiation is not supported.
 
 ### Display form [GET]
 Display an html form 
