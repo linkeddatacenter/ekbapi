@@ -1,19 +1,21 @@
 FORMAT: 1A
 
-# ekb
-[eKB](http://www.e-artspace.com/home/service/ekb) is a service by [E-Artspace](http://www.e-artspace.com) (c) 2014 
-that implements the [KEES architecture](http://www.e-artspace.com/home/project/kees).
+# eKB APIs
+[eKB](http://www.e-artspace.com/home/service/ekb) is a service provided by [E-Artspace](http://www.e-artspace.com) 
+as part of [LinkedData.Center](http://linkeddata.center) offering.
 
-## Overview
-eKB provides you with some RESTful APIs and some interactive resouces. 
-To access both you need to provide your eKB credentials using 
-[http](http://en.wikipedia.org/wiki/Basic_access_authentication).
+eKB provides you with some RESTful APIs and some interactive resouces to realize part of
+the [KEES architecture](http://www.e-artspace.com/home/project/kees).
 
 
-RESTful APIs support a full set of state representation (json, xml, txt) 
+To access eKB APIs  you need to provide your credentials using 
+[http basic authentication](http://en.wikipedia.org/wiki/Basic_access_authentication) protocol.
+
+
+eKB APIs support a full set of state representation (json, xml, txt) 
 with [http content negotiation](http://en.wikipedia.org/wiki/Content_negotiation). 
-You can also use just a simple browser 
-(also a mobile one) to access all eKB feature because text/html representation is also supported.
+You can also use just a simple web browser to access all eKB feature because text/html 
+representation is  supported.
 
 
 Here is a quik summary of eKB RESTful APIs:
@@ -23,12 +25,8 @@ Here is a quik summary of eKB RESTful APIs:
 | Job management | /ekb/jobs       | X   |     | X    | X      | http Basic |       |
 |                | /ekb/job/{id}   | X   |     |      | X      | http Basic |       |
 |                | /ekb/postjob    | X   |     |      |        |            | display an html form |
-| SPARQL         | /{kb}/query     | X   |     | X    |        | http Basic | (a)   |
+| SPARQL         | /{kb}/query     | X   |     | X    |        | http Basic |       |
 
-
-(a) This end point implements [SPARQL 1.1 protocol](http://www.w3.org/TR/sparql11-protocol/) 
- for [query](http://www.w3.org/TR/sparql11-query/) and [update](http://www.w3.org/TR/sparql11-update/) language specifications.
- It also supports [Service Description](http://www.w3.org/TR/sparql11-service-description/) specification.
 
 Beside these, eKB hub allows a transparent access to backing quadstore specific APIs.
 Depending from the type of eKB service you have subscribed you can get benefit of all vendor apis:
