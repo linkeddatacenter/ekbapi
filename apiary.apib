@@ -15,11 +15,11 @@ To access eKB APIs  you need to provide your credentials using
 
 ###RESTful APIs overview
 
-| Group          | Resource        | GET | PUT | POST | DELETE | Auth Type  | Notes |
-|----------------|-----------------|-----|-----|------|--------|------------|-------|
-| Job management | /ekb/jobs       | X   |     | X    | X      | http Basic |       |
-|                | /ekb/job/{id}   | X   |     |      | X      | http Basic |       |
-| SPARQL         | /{kb}/query     | X   |     | X    |        | http Basic |       |
+| Group          | Resource        | GET | PUT | POST | DELETE | Auth Type  |
+|----------------|-----------------|-----|-----|------|--------|------------|
+| Job management | /ekb/jobs       | X   |     | X    | X      | http Basic |
+|                | /ekb/job/{id}   | X   |     |      | X      | http Basic |
+| SPARQL         | /{kb}/query     | X   |     | X    |        | http Basic |
 
 
 eKB APIs support a full set of state representations (json, xml, txt,html) 
@@ -44,7 +44,7 @@ eKB provides a set of interactive forms callable from any html compliant device.
 |------------------- |-------------------|------------|-------|
 | User management    | /#/security/users | web form   | (a)   |
 | Interactive SPARQL | /{db}#!/query     | http Basic | (a)   |
-| Job submission     | /ekb/postjob      | http Basic |       |
+| Job submission     | /ekb/postjobform  | http Basic |       |
 
 (a) depending from rdf quadstore provider, in above table are shown stardog URLs.
 
