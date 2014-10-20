@@ -156,7 +156,6 @@ The mimetype must be url encoded (i.e. _output=application%2Fjson).
 
 
 ## Job Collection [/ekb/jobs]
-List and create new Jobs.
 
 + Model (application/json)
 
@@ -195,8 +194,8 @@ List and create new Jobs.
                }
             ]   
 
-### List all Jobs [GET]
-Lists your job.  By default, comleted jobs (with execution report) are retained for one day before to be deleted.
+### List all jobs [GET]
+Lists your job.  By default, completed jobs (with their execution report) are retained for one day before to be deleted.
 
 + Authorization ... [Base64](http://en.wikipedia.org/wiki/Base64) encoded string literal in form _"username:password"_ preceeded by authorization method and its space.
 
@@ -211,7 +210,7 @@ Lists your job.  By default, comleted jobs (with execution report) are retained 
     [Job Collection][]
 
 
-### Create a new Job [POST]
+### Create a new job [POST]
 Creates a new Job to be executed as soon as possible.
 
 Accepts following x-www-form-urlencoded vars:
@@ -246,7 +245,7 @@ Accepts following x-www-form-urlencoded vars:
     
             "5443bd70785dc"
 
-### Delete all new Jobs [DELETE]
+### Delete all jobs [DELETE]
 Deletes all your jobs, both the waiting to be executed and the completed ones.
 
 + Authorization ... [Base64](http://en.wikipedia.org/wiki/Base64) encoded string literal in form _"username:password"_ preceeded by authorization method and its space.
