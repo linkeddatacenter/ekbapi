@@ -79,7 +79,7 @@ Here is an example of a 404 error in json representation:
 # Group SPARQL end-point
 Access to the knowledge base.
 
-## SPARQL query [/{db}/query]
+## SPARQL query [/{db}/query{?query}]
 This end point implements [SPARQL 1.1 protocol](http://www.w3.org/TR/sparql11-protocol/) 
 for [query](http://www.w3.org/TR/sparql11-query/) and [update](http://www.w3.org/TR/sparql11-update/) language specifications.
 It also supports [Service Description](http://www.w3.org/TR/sparql11-service-description/) specification.
@@ -112,7 +112,7 @@ If no query parameter is supplied it returns
 
 + Parameters
     + db (required, string, `"myDb"`) ... `id` of the Knowlege base db 
-    + query (optional, string, `"SELECT.."`) ... `id` of the Knowlege base db 
+    + query (optional, string, `"SELECT%20%3Fs%20WHERE%20%7BGRAPH%20%3Fg%7B%3Fs%20%3Fp%20%3Fo%7D%7D"`) ... `id` of the Knowlege base db 
 
 + Response 200
 
@@ -131,7 +131,7 @@ The body of the request should be same form-encoded parameters of the GET varian
 
 + Request (application/x-www-form-urlencoded)
 
-            query=select%20%3Fs%20where%20%7Bgraph%20%3Fg%7B%3Fs%20%3Fp%20%3Fo%7D%7D
+            query=SELECT%20%3Fs%20WHERE%20%7BGRAPH%20%3Fg%7B%3Fs%20%3Fp%20%3Fo%7D%7D
             
 + Response 200
 
@@ -220,8 +220,8 @@ Accepts following x-www-form-urlencoded vars:
 |-------|------------------|--------------------|---------------------------------------------------------------------------------|
 | type  | learn            | 'learn' or 'reset' | "learn" start a kees learning windows, "reset" clear all knowledge (warning!).  |
 | db    | --               | string             | the knowledge db id                                                             |
-| index | pings            | "pings" or url     | if set to "pings" get resources to load from a ping server, else from url.      |
-| graph | provenance       | "provenance or "default" or url | RDF grapf to be use for data: with 'provenance' uses the uri of data provenance to name graph, with 'default' uses the default graph for all data,otherwhise you can specify an uri for the graph |
+| ds    | pings://ping.linkeddata.center/ | url | the uri of the resource to load                                                 |
+| graph | provenance       | "provenance" or "default" or url | RDF grapf to be use for data: with 'provenance' uses the uri of data provenance to name graph, with 'default' uses the default graph for all data,otherwhise you can specify an uri for the graph |
 
 + Authorization ... [Base64](http://en.wikipedia.org/wiki/Base64) encoded string literal in form _"username:password"_ preceeded by authorization method and its space.
 
