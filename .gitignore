@@ -1,0 +1,22 @@
+.project
+.stardog
+Vagrantfile
+Berksfile
+# Composer
+.secret*
+.env*
+vendor
+composer.lock
+.vagrant
+.cache
+Berksfile.lock
+.project
+.env.private
+*~
+*#
+.#*
+\#*#
+.*.sw[a-z]
+*.un~
+pkg/
+
