@@ -211,13 +211,13 @@ Lists your job.  By default, completed jobs (with their execution report) are re
 
 
 ### Create a new job [POST]
-Creates a new Job to be executed as soon as possible.
+Creates a new learning Job to be executed as soon as possible.
 
 Accepts following x-www-form-urlencoded vars:
 
 | var   | default value    | ver type           | description                                                                     |
 |-------|------------------|--------------------|---------------------------------------------------------------------------------|
-| type  | learn            | 'learn' or 'reset' | "learn" start a kees learning windows, "reset" clear all knowledge (warning!).  |
+| mode  | incremental      | 'incremental' or 'reset' | "incremental" adds data to KB, "reset" clear knowledge (tabula rasa) before learning. |
 | db    | --               | string             | the knowledge db id                                                             |
 | ds    | pings://ping.linkeddata.center/ | url | the uri of the resource to load                                                 |
 | graph | provenance       | "provenance" or "default" or url | RDF grapf to be use for data: with 'provenance' uses the uri of data provenance to name graph, with 'default' uses the default graph for all data,otherwhise you can specify an uri for the graph |
