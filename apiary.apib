@@ -9,56 +9,45 @@ It exposes some RESTful APIs and some interactive resources to realize the core 
 the [KEES architecture](http://www.e-artspace.com/home/project/kees).
 
 
-To access eKB APIs  you need to provide your credentials using 
-[http basic authentication](http://en.wikipedia.org/wiki/Basic_access_authentication).
-
-
 ###RESTful APIs overview
 
-| Group          | Resource        | GET | PUT | POST | DELETE | Auth Type  |
-|----------------|-----------------|-----|-----|------|--------|------------|
-| Job management | /ekb/jobs       | X   |     | X    | X      | http Basic |
-|                | /ekb/job/{id}   | X   |     |      | X      | http Basic |
-| SPARQL         | /{kb}/query     | X   |     | X    |        | http Basic |
+| Group          | Resource                | GET | PUT | POST | DELETE |
+|----------------|-------------------------|-----|-----|------|--------|
+| Job management | /{kb}/jobs              | X   |     | X    | X      |
+|                | /{kb}/job/{id}          | X   |     |      | X      |
+| SPARQL         | /{kb}/sparql            | X   |     | X    |        |
+| Security       | /admin/users/{user}/pwd |     | X   |      |        |
+
+To access eKB APIs  you alway need to provide your credentials using 
+[http basic authentication](http://en.wikipedia.org/wiki/Basic_access_authentication).
+
+Beside these, eKB appliances and eKB corporate services allow a transparent access
+to backing quadstore specific APIs.
+Depending from the configuration of the eKB service you chosed,
+you can get benefit of all quadstore vendor web services:
+
+| Quadstore     | APIs documentation URL         |
+|---------------|--------------------------------|
+| Stardog 2.2.2 | http://docs.stardog.apiary.io/ |
 
 
-eKB APIs support a full set of state representations (json, xml, txt,html) 
-through  [http content negotiation](http://en.wikipedia.org/wiki/Content_negotiation).
-You can access APIs from any web browser or using any programming language. 
-
-eKB allows a transparent access to backing quadstore specific APIs.
-Depending from the type of eKB service you have subscribed you can get benefit 
-of all quadstore vendor web services:
-
-| Quadstore vendor| APIs documentation URL         |
-|-----------------|--------------------------------|
-| Stardog 2.2.2   | http://docs.stardog.apiary.io/ |
-
-
-###Interactive resources
-
-eKB provides a set of interactive forms callable from any html compliant device.
-
-| Function           | Resouce           | Auth Type  | Notes |
-|------------------- |-------------------|------------|-------|
-| User management    | /#/security/users | web form   | (a)   |
-| Interactive SPARQL | /{db}#!/query     | http Basic | (a)   |
-| Job submission     | /ekb/postjobform  | http Basic |       |
-
-(a) depending from rdf quadstore provider, in this table are shown stardog URLs.
 
 ###Typical Server Responses
 
-Typycal http status
- * `200` Request was successful
- * `201` Request was successful and the resource was created
- * `400` Indicates parse errors or that the transaction identifier specified for an operation is invalid or does not correspond to a known transaction.
- * `401` Request is unauthorized.
- * `403` User attempting to perform the operation does not exist, their username or password is invalid, or they do not have the proper credentials to perform the action.
- * `404` A resource involved in the operation, such as a user or transaction, does not exist
- * `409` A conflict for some database operations; for example, creating a database that already exists
- * `500` An unspecified failure in the server
- * `503` The eKB serve is learnig new resources or is reasoning. Quesy is temporary disabled.
+Following table sumarize typycal http status code returned by APIS
+
+| Code | Description                                                                                     | 
+|------|-------------------------------------------------------------------------------------------------|
+| 200  | Request was successful                                                                          |
+| 201  | Request was successful and the resource was created                                             |
+| 202  | Request was successfully queued                                                                 |
+| 400  | Indicates parse errors or that the transaction identifier specified for an operation is invalid or does not correspond to a known transaction. |
+| 401  | Request is unauthorized.                                                                        |
+| 403  | User attempting to perform the operation does not exist, their username or password is invalid, or they do not have the proper credentials to perform the action. |
+| 404  | A resource involved in the operation, such as a user or transaction, does not exist.            |
+| 409  | A conflict for some database operations; for example, creating a database that already exists.  |
+| 500  | An unspecified failure in the server.                                                           |
+| 503  | The eKB serve is learnig new resources or is reasoning. Sparql interface is temporary disabled. |
 
 Error representation is based on [ietf specs](http://tools.ietf.org/html/draft-nottingham-http-problem-07).
 Here is an example of a 404 error in json representation:
@@ -78,15 +67,28 @@ Here is an example of a 404 error in json representation:
 # Group SPARQL end-point
 Access to the knowledge base.
 
-## SPARQL query [/{db}/query{?query}]
+## SPARQL query [/{db}/sparql{?query}]
 This end point implements [SPARQL 1.1 protocol](http://www.w3.org/TR/sparql11-protocol/) 
 for [query](http://www.w3.org/TR/sparql11-query/) and [update](http://www.w3.org/TR/sparql11-update/) language specifications.
 It also supports [Service Description](http://www.w3.org/TR/sparql11-service-description/) specification.
 
+SPARQL query APIs support [http content negotiation](http://en.wikipedia.org/wiki/Content_negotiation) for state representation rendering.
+
+All HTTP requests that are mutative (add or remove) must include a valid Content-Type header set to the MIME type of the request body,
+ where “valid” is a valid MIME type for N-Triples(text/plain), Turtle (application/x-turtle or text/turtle), NQuads (text/x-nquads), JSON-LD(application/ld+json), or RDF/XML (application/rdf+xml).
+ 
+Depending from SPARQL query, following MIME types are recognized in the Accept header:
+
+| Query type | Supported MIMETYPE in Accept header                                                                |
+|------------|----------------------------------------------------------------------------------------------------|
+| SELECT     | application/sparql-results+xml OR application/sparql-results+json                                  |
+| ASK        | text/boolean                                                                                       |
+| CONSTRUCT  | application/rdf+xml OR text/turtle OR application/x-turtle OR text/x-nquads OR application/ld+json |
+
 + Model (application/sparql-results+xml)
 
     See [SPARQL Query Results XML Format](http://www.w3.org/TR/rdf-sparql-XMLres/) for more info.
-
+            
     + Body
 
             <?xml version='1.0' encoding='UTF-8'?>
@@ -105,14 +107,20 @@ It also supports [Service Description](http://www.w3.org/TR/sparql11-service-des
 
 ### SPARQL query via get [GET]
 If no query parameter is supplied it returns 
-[end-point service Description](http://www.w3.org/TR/sparql11-service-description/) in RDF serialization.
+[end-point service Description](http://www.w3.org/TR/sparql11-service-description/) in one of available RDF serialization.
 
 + Authorization ... [Base64](http://en.wikipedia.org/wiki/Base64) encoded string literal in form _"username:password"_ preceeded by authorization method and its space.
 
 + Parameters
-    + db (required, string, `"myDb"`) ... `id` of the Knowlege base db 
+    + db (required, string, `"gate1"`) ... `id` of the Knowlege base db 
     + query (optional, string, `"SELECT%20%3Fs%20WHERE%20%7BGRAPH%20%3Fg%7B%3Fs%20%3Fp%20%3Fo%7D%7D"`) ... `id` of the Knowlege base db 
 
++ Request (application/x-www-form-urlencoded)
+
+    + Headers
+    
+            Accept: application/sparql-results+xml
+            
 + Response 200
 
     [SPARQL query][]
@@ -126,9 +134,15 @@ The body of the request should be same form-encoded parameters of the GET varian
 + Authorization ... [Base64](http://en.wikipedia.org/wiki/Base64) encoded string literal in form _"username:password"_ preceeded by authorization method and its space.
 
 + Parameters
-    + db (required, string, `"myDb"`) ... `id` of the Knowlege base db 
+    + db (required, string, `"gate1"`) ... `id` of the Knowlege base db 
 
 + Request (application/x-www-form-urlencoded)
+
+    + Headers
+    
+            Accept: application/sparql-results+xml
+
+    + Body
 
             query=SELECT%20%3Fs%20WHERE%20%7BGRAPH%20%3Fg%7B%3Fs%20%3Fp%20%3Fo%7D%7D
             
@@ -139,23 +153,25 @@ The body of the request should be same form-encoded parameters of the GET varian
 
 
 # Group Job management
-Job management APIs allow to launch administrative task that operate on the knowledge base. 
+Job management APIs allow to launch learning task that populate the knowledge base. 
 Jobs are executed asyncronusly as soon as there are enough resources available in the system.
 
-There are two types of jobs:
+Following jobs type are supported:
  * **learn**: used to initatie a [KEES](http://www.e-artspace.com/home/project/kees) learning and reasoning window, where new data discovered and learned.
- * **reset**: used to clean all knowledge base (WARNING!)
 
 Each job is provided with an unique id known only to the user that posted it. 
 The job state can be inspected before and during execution. 
 After execution the job status contains the full execution log (job execution report).
+
+Job Collection APIs support [http content negotiation](http://en.wikipedia.org/wiki/Content_negotiation) for state representation rendering.
+Following MIME types are supported in the Accept header: text/html, application/rdf+xml, text/turtle, application/x-turtle, text/x-nquads OR application/ld+json 
 
 You can use *_output=mimetype* parameter in any URL to override http content negotiation 
 and forcing your preferred resource representation. 
 The mimetype must be url encoded (i.e. _output=application%2Fjson).
 
 
-## Job Collection [/ekb/jobs]
+## Job Collection [/{db}/jobs]
 
 + Model (application/json)
 
@@ -199,6 +215,9 @@ Lists your job.  By default, completed jobs (with their execution report) are re
 
 + Authorization ... [Base64](http://en.wikipedia.org/wiki/Base64) encoded string literal in form _"username:password"_ preceeded by authorization method and its space.
 
++ Parameters
+    + db (required, string, `"gate1"`) ... `id` of the Knowlege base db 
+
 + Request
 
     + Headers
@@ -223,6 +242,9 @@ Accepts following x-www-form-urlencoded vars:
 | graph | provenance | "provenance" or "default" or url | RDF grapf to be use for data: with 'provenance' uses the uri of data provenance to name graph, with 'default' uses the default graph for all data,otherwhise you can specify an uri for the graph |
 
 + Authorization ... [Base64](http://en.wikipedia.org/wiki/Base64) encoded string literal in form _"username:password"_ preceeded by authorization method and its space.
+
++ Parameters
+    + db (required, string, `"gate1"`) ... `id` of the Knowlege base db 
 
 + Request (application/x-www-form-urlencoded)
 
@@ -250,6 +272,9 @@ Deletes all your jobs, both the waiting to be executed and the completed ones.
 
 + Authorization ... [Base64](http://en.wikipedia.org/wiki/Base64) encoded string literal in form _"username:password"_ preceeded by authorization method and its space.
 
++ Parameters
+    + db (required, string, `"gate1"`) ... `id` of the Knowlege base db 
+
 + Request
 
     + Headers
@@ -262,10 +287,11 @@ Deletes all your jobs, both the waiting to be executed and the completed ones.
 
 
 
-## Job [/ekb/job/{id}]
+## Job [/{db}/job/{id}]
 A single Job object with all its details.
 
 + Parameters
+    + db (required, string, `"gate1"`) ... `id` of the Knowlege base db 
     + id (required, string, `"5443bd792b8fa"`) ... `id` of the Job 
 
 + Model (application/json)
@@ -294,6 +320,9 @@ Get a job state representation, completed with all available execution informati
 
 + Authorization ... [Base64](http://en.wikipedia.org/wiki/Base64) encoded string literal in form _"username:password"_ preceeded by authorization method and its space.
 
++ Parameters
+    + db (required, string, `"gate1"`) ... `id` of the Knowlege base db 
+
 + Request
 
     + Headers
@@ -308,6 +337,9 @@ Get a job state representation, completed with all available execution informati
 ### Delete a Job [DELETE]
 + Authorization ... [Base64](http://en.wikipedia.org/wiki/Base64) encoded string literal in form _"username:password"_ preceeded by authorization method and its space.
 
++ Parameters
+    + db (required, string, `"gate1"`) ... `id` of the Knowlege base db 
+
 + Request
 
     + Headers
@@ -319,10 +351,22 @@ Get a job state representation, completed with all available execution informati
         "5443bd70785dc"
 
 
-## Post Job Form [/ekb/postjobform]
-Just an interactive utility to display a simple html form to post a new job. Content negotiation is not supported.
+# Group Security
+Secure some knowledge base aspects.
 
-### Display form [GET]
-Display an html form 
+## User password [/admin/users/{user}/pwd]
+Change the password of an existing user. Note that in eKB SaaS service username is the same of knowledge base id (in Appliances an corporate models it can be different).
 
+### Change user password [PUT]
++ Authorization ... [Base64](http://en.wikipedia.org/wiki/Base64) encoded string literal in form _"username:password"_ preceeded by authorization method and its space.
+
++ Parameters
+    + user (required, string, `"gate1"`) ... `id` of the user (often same as Knowlege base db) 
+
++ Request
+
+    + Body
+    
+            newpassword
+            
 + Response 200
