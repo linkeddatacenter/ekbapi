@@ -11,13 +11,13 @@ the [KEES architecture](http://www.e-artspace.com/home/project/kees).
 
 ###RESTful APIs overview
 
-| Group          | Resource                | GET | PUT | POST | DELETE |
-|----------------|-------------------------|-----|-----|------|--------|
-| Job management | /{kb}/jobs              | X   |     | X    | X      |
-|                | /{kb}/job/{id}          | X   |     |      | X      |
-| SPARQL         | /{kb}/sparql            | X   |     | X    |        |
-| SPARQL         | /{kb}/_sparql           | X   |     | X    |        |
-| Security       | /{user}/pwd             |     | X   |      |        |
+| Group               | Resource                | GET | PUT | POST | DELETE |
+|---------------------|-------------------------|-----|-----|------|--------|
+| SPARQL              | /{kb}/sparql            | X   |     | X    |        |
+|                     | /{kb}/_sparql           | X   |     | X    |        |
+| Job management      | /ekb/{kb}/jobs          | X   |     | X    | X      |
+|                     | /ekb/{kb}/job/{id}      | X   |     |      | X      |
+| Security management | /ekb/{user}/pwd         |     | X   |      |        |
 
 To access eKB APIs  you alway need to provide your credentials using
 [http basic authentication](http://en.wikipedia.org/wiki/Basic_access_authentication).
@@ -68,33 +68,18 @@ Here is an example of a 404 error in json representation:
 # Group SPARQL end-point
 Access to the knowledge base.
 
-## SPARQL protected query [/{db}/sparql{?query}]
-This end point implements [SPARQL 1.1 protocol](http://www.w3.org/TR/sparql11-protocol/) 
-for [query](http://www.w3.org/TR/sparql11-query/) and [update](http://www.w3.org/TR/sparql11-update/) language specifications.
-It also supports [Service Description](http://www.w3.org/TR/sparql11-service-description/) specification.
+## SPARQL query [/ekb/{db}/sparql{?query}]
 
-SPARQL query APIs support [http content negotiation](http://en.wikipedia.org/wiki/Content_negotiation) for state representation rendering.
+**Protection from inconsistent data**
 
-All HTTP requests that are mutative (add or remove) must include a valid Content-Type header set to the MIME type of the request body,
- where “valid” is a valid MIME type for N-Triples(text/plain), Turtle (application/x-turtle or text/turtle), NQuads (text/x-nquads), JSON-LD(application/ld+json), or RDF/XML (application/rdf+xml).
- 
-Depending from SPARQL query, following MIME types are recognized in the Accept header:
-
-| Query type | Supported MIMETYPE in Accept header                                                                |
-|------------|----------------------------------------------------------------------------------------------------|
-| SELECT     | application/sparql-results+xml OR application/sparql-results+json                                  |
-| ASK        | text/boolean                                                                                       |
-| CONSTRUCT  | application/rdf+xml OR text/turtle OR application/x-turtle OR text/x-nquads OR application/ld+json |
-
-
-*Protection from inconsistent data*
 In accordance with the  KEES architecture, the knowledge base may be in a state temporarily inconsistent during the phases 
 of acquisition of new data (learning window) or during the steps of the computation of inferences (reasoning window).
 During these temporary windows, the result of the query to the knowledge base may be incorrect.
 
-This endpoint is protected by a guard that prevents access to the data in the windows of learning and reasoning. 
-In these cases, any access to endpoint receives a 503 (Service Unavailable). 
+This endpoint is protected by a guard that prevents access to the data during learning and reasoning windows. 
+In these cases, any access to endpoint receives a 503 error (Service Unavailable). 
 Http header Retry-After is given an estimate of the time (in seconds) that you should wait before attempting access.
+
 
 
 + Model (application/sparql-results+xml)
@@ -118,6 +103,24 @@ Http header Retry-After is given an estimate of the time (in seconds) that you s
             </sparql> 
 
 ### SPARQL query via get [GET]
+This end point implements [SPARQL 1.1 protocol](http://www.w3.org/TR/sparql11-protocol/) 
+for [query](http://www.w3.org/TR/sparql11-query/) and [update](http://www.w3.org/TR/sparql11-update/) language specifications.
+It also supports [Service Description](http://www.w3.org/TR/sparql11-service-description/) specification.
+
+SPARQL query APIs support [http content negotiation](http://en.wikipedia.org/wiki/Content_negotiation) for state representation rendering.
+
+All HTTP requests that are mutative (add or remove) must include a valid Content-Type header set to the MIME type of the request body,
+ where “valid” is a valid MIME type for N-Triples(text/plain), Turtle (application/x-turtle or text/turtle), NQuads (text/x-nquads), JSON-LD(application/ld+json), or RDF/XML (application/rdf+xml).
+ 
+Depending from SPARQL query, following MIME types are recognized in the Accept header:
+
+| Query type | Supported MIMETYPE in Accept header                                                                |
+|------------|----------------------------------------------------------------------------------------------------|
+| SELECT     | application/sparql-results+xml OR application/sparql-results+json                                  |
+| ASK        | text/boolean                                                                                       |
+| CONSTRUCT  | application/rdf+xml OR text/turtle OR application/x-turtle OR text/x-nquads OR application/ld+json |
+
+
 If no query parameter is supplied it returns 
 [end-point service Description](http://www.w3.org/TR/sparql11-service-description/) in one of available RDF serialization.
 
@@ -163,12 +166,52 @@ The body of the request should be same form-encoded parameters of the GET varian
     [SPARQL query][]
 
 
-## SPARQL unprotected query [/{db}/_sparql{?query}]
-This end point behave exactly as sparq one. But it is not protected during learning and reasoning windows.
-This means that the enpoint is always accessible but data inegrity is not guarantee.
+## SPARQL unprotected query [/ekb/{db}/_sparql{?query}]
+This end point behave exactly as  sparq one. But it is not protected during learning and reasoning windows.
+This means that the enpoint is always accessible but data consistency is not guarantee.
 
-See SPARQL protected query for more info.
+See SPARQL query for more info.
 
+### SPARQL unprotected query via get [GET]
+
++ Authorization ... [Base64](http://en.wikipedia.org/wiki/Base64) encoded string literal in form _"username:password"_ preceeded by authorization method and its space.
+
++ Parameters
+    + db (required, string, `gate1`) ... `id` of the Knowlege base db 
+    + query (optional, string, `"SELECT%20%3Fs%20WHERE%20%7BGRAPH%20%3Fg%7B%3Fs%20%3Fp%20%3Fo%7D%7D"`) ... `id` of the Knowlege base db 
+
++ Request (application/x-www-form-urlencoded)
+
+    + Headers
+    
+            Accept: application/sparql-results+xml
+            
++ Response 200
+
+    [SPARQL query][]
+
+
+
+### SPARQL unprotected query via post [POST]
+
++ Authorization ... [Base64](http://en.wikipedia.org/wiki/Base64) encoded string literal in form _"username:password"_ preceeded by authorization method and its space.
+
++ Parameters
+    + db (required, string, `gate1`) ... `id` of the Knowlege base db 
+
++ Request (application/x-www-form-urlencoded)
+
+    + Headers
+    
+            Accept: application/sparql-results+xml
+
+    + Body
+
+            query=SELECT%20%3Fs%20WHERE%20%7BGRAPH%20%3Fg%7B%3Fs%20%3Fp%20%3Fo%7D%7D
+            
++ Response 200
+
+    [SPARQL query][]
 
 
 # Group Job management
@@ -190,7 +233,7 @@ and forcing your preferred resource representation.
 The mimetype must be url encoded (i.e. _output=application%2Fjson).
 
 
-## Job Collection [/{db}/jobs]
+## Job Collection [/ekb/{db}/jobs]
 
 + Model (application/json)
 
@@ -306,7 +349,7 @@ Deletes all your jobs, both the waiting to be executed and the completed ones.
 
 
 
-## Job [/{db}/job/{id}]
+## Job [/ekb/{db}/job/{id}]
 A single Job object with all its details.
 
 + Parameters
@@ -373,14 +416,18 @@ Get a job state representation, completed with all available execution informati
 # Group Security
 Secure some knowledge base aspects.
 
-## User password [/_user/{user}/pwd]
-Change the password of an existing user. Note that in eKB SaaS service username is the same of knowledge base id (in Appliances an corporate models it can be different).
+## User password [/ekb/{kb}/pwd]
+Change the password of the knowledge admin user. 
+
+This api is available only on SaaS service model.
+In Appliances an Corporate service models you can use the quadstore administration vendor control panel or
+quadstore APIs.
 
 ### Change user password [PUT]
 + Authorization ... [Base64](http://en.wikipedia.org/wiki/Base64) encoded string literal in form _"username:password"_ preceeded by authorization method and its space.
 
 + Parameters
-    + user (required, string, `gate1`) ... `id` of the user (often same as Knowlege base db) 
+    + kb (required, string, `gate1`) ... `id` of the user (same as Knowlege base db) 
 
 + Request
 
