@@ -124,7 +124,7 @@ If no query parameter is supplied it returns
 + Authorization ... [Base64](http://en.wikipedia.org/wiki/Base64) encoded string literal in form _"username:password"_ preceeded by authorization method and its space.
 
 + Parameters
-    + db (required, string, `"gate1"`) ... `id` of the Knowlege base db 
+    + db (required, string, `gate1`) ... `id` of the Knowlege base db 
     + query (optional, string, `"SELECT%20%3Fs%20WHERE%20%7BGRAPH%20%3Fg%7B%3Fs%20%3Fp%20%3Fo%7D%7D"`) ... `id` of the Knowlege base db 
 
 + Request (application/x-www-form-urlencoded)
@@ -146,7 +146,7 @@ The body of the request should be same form-encoded parameters of the GET varian
 + Authorization ... [Base64](http://en.wikipedia.org/wiki/Base64) encoded string literal in form _"username:password"_ preceeded by authorization method and its space.
 
 + Parameters
-    + db (required, string, `"gate1"`) ... `id` of the Knowlege base db 
+    + db (required, string, `gate1`) ... `id` of the Knowlege base db 
 
 + Request (application/x-www-form-urlencoded)
 
@@ -292,7 +292,7 @@ Deletes all your jobs, both the waiting to be executed and the completed ones.
 + Authorization ... [Base64](http://en.wikipedia.org/wiki/Base64) encoded string literal in form _"username:password"_ preceeded by authorization method and its space.
 
 + Parameters
-    + db (required, string, `"gate1"`) ... `id` of the Knowlege base db 
+    + db (required, string, `gate1`) ... `id` of the Knowlege base db 
 
 + Request
 
@@ -310,7 +310,7 @@ Deletes all your jobs, both the waiting to be executed and the completed ones.
 A single Job object with all its details.
 
 + Parameters
-    + db (required, string, `"gate1"`) ... `id` of the Knowlege base db 
+    + db (required, string, `gate1`) ... `id` of the Knowlege base db 
     + id (required, string, `"5443bd792b8fa"`) ... `id` of the Job 
 
 + Model (application/json)
@@ -340,7 +340,7 @@ Get a job state representation, completed with all available execution informati
 + Authorization ... [Base64](http://en.wikipedia.org/wiki/Base64) encoded string literal in form _"username:password"_ preceeded by authorization method and its space.
 
 + Parameters
-    + db (required, string, `"gate1"`) ... `id` of the Knowlege base db 
+    + db (required, string, `gate1`) ... `id` of the Knowlege base db 
 
 + Request
 
@@ -357,7 +357,7 @@ Get a job state representation, completed with all available execution informati
 + Authorization ... [Base64](http://en.wikipedia.org/wiki/Base64) encoded string literal in form _"username:password"_ preceeded by authorization method and its space.
 
 + Parameters
-    + db (required, string, `"gate1"`) ... `id` of the Knowlege base db 
+    + db (required, string, `gate1`) ... `id` of the Knowlege base db 
 
 + Request
 
@@ -380,7 +380,7 @@ Change the password of an existing user. Note that in eKB SaaS service username 
 + Authorization ... [Base64](http://en.wikipedia.org/wiki/Base64) encoded string literal in form _"username:password"_ preceeded by authorization method and its space.
 
 + Parameters
-    + user (required, string, `"gate1"`) ... `id` of the user (often same as Knowlege base db) 
+    + user (required, string, `gate1`) ... `id` of the user (often same as Knowlege base db) 
 
 + Request
 
