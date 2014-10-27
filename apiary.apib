@@ -16,7 +16,8 @@ the [KEES architecture](http://www.e-artspace.com/home/project/kees).
 | Job management | /{kb}/jobs              | X   |     | X    | X      |
 |                | /{kb}/job/{id}          | X   |     |      | X      |
 | SPARQL         | /{kb}/sparql            | X   |     | X    |        |
-| Security       | /admin/users/{user}/pwd |     | X   |      |        |
+| SPARQL         | /{kb}/_sparql           | X   |     | X    |        |
+| Security       | /{user}/pwd             |     | X   |      |        |
 
 To access eKB APIs  you alway need to provide your credentials using 
 [http basic authentication](http://en.wikipedia.org/wiki/Basic_access_authentication).
@@ -67,7 +68,7 @@ Here is an example of a 404 error in json representation:
 # Group SPARQL end-point
 Access to the knowledge base.
 
-## SPARQL query [/{db}/sparql{?query}]
+## SPARQL protected query [/{db}/sparql{?query}]
 This end point implements [SPARQL 1.1 protocol](http://www.w3.org/TR/sparql11-protocol/) 
 for [query](http://www.w3.org/TR/sparql11-query/) and [update](http://www.w3.org/TR/sparql11-update/) language specifications.
 It also supports [Service Description](http://www.w3.org/TR/sparql11-service-description/) specification.
@@ -84,6 +85,17 @@ Depending from SPARQL query, following MIME types are recognized in the Accept h
 | SELECT     | application/sparql-results+xml OR application/sparql-results+json                                  |
 | ASK        | text/boolean                                                                                       |
 | CONSTRUCT  | application/rdf+xml OR text/turtle OR application/x-turtle OR text/x-nquads OR application/ld+json |
+
+
+*Protection from inconsistent data*
+In accordance with the  KEES architecture, the knowledge base may be in a state temporarily inconsistent during the phases 
+of acquisition of new data (learning window) or during the steps of the computation of inferences (reasoning window).
+During these temporary windows, the result of the query to the knowledge base may be incorrect.
+
+This endpoint is protected by a guard that prevents access to the data in the windows of learning and reasoning. 
+In these cases, any access to endpoint receives a 503 (Service Unavailable). 
+Http header Retry-After is given an estimate of the time (in seconds) that you should wait before attempting access.
+
 
 + Model (application/sparql-results+xml)
 
@@ -149,6 +161,13 @@ The body of the request should be same form-encoded parameters of the GET varian
 + Response 200
 
     [SPARQL query][]
+
+
+## SPARQL unprotected query [/{db}/_sparql{?query}]
+This end point behave exactly as sparq one. But it is not protected during learning and reasoning windows.
+This means that the enpoint is always accessible but data inegrity is not guarantee.
+
+See SPARQL protected query for more info.
 
 
 
@@ -354,7 +373,7 @@ Get a job state representation, completed with all available execution informati
 # Group Security
 Secure some knowledge base aspects.
 
-## User password [/admin/users/{user}/pwd]
+## User password [/_user/{user}/pwd]
 Change the password of an existing user. Note that in eKB SaaS service username is the same of knowledge base id (in Appliances an corporate models it can be different).
 
 ### Change user password [PUT]
