@@ -14,10 +14,11 @@ the [KEES architecture](http://www.e-artspace.com/home/project/kees).
 | Group               | Resource                | GET | PUT | POST | DELETE |
 |---------------------|-------------------------|-----|-----|------|--------|
 | SPARQL              | /{kb}/sparql            | X   |     | X    |        |
-|                     | /{kb}/_sparql           | X   |     | X    |        |
+|                     | /{kb}/query             | X   |     | X    |        |
 | Job management      | /ekb/{kb}/jobs          | X   |     | X    | X      |
 |                     | /ekb/{kb}/job/{id}      | X   |     |      | X      |
-| Security management | /ekb/{user}/pwd         |     | X   |      |        |
+| Security management | /{kb}/pwd               |     | X   |      |        |
+| (for SaaS model)    |                         |     |     |      |        |
 
 To access eKB APIs  you alway need to provide your credentials using
 [http basic authentication](http://en.wikipedia.org/wiki/Basic_access_authentication).
@@ -68,7 +69,7 @@ Here is an example of a 404 error in json representation:
 # Group SPARQL end-point
 Access to the knowledge base.
 
-## SPARQL query [/ekb/{db}/sparql{?query}]
+## SPARQL query [/{kb}/sparql{?query}]
 
 **Protection from inconsistent data**
 
@@ -127,8 +128,8 @@ If no query parameter is supplied it returns
 + Authorization ... [Base64](http://en.wikipedia.org/wiki/Base64) encoded string literal in form _"username:password"_ preceeded by authorization method and its space.
 
 + Parameters
-    + db (required, string, `gate1`) ... `id` of the Knowlege base db 
-    + query (optional, string, `"SELECT%20%3Fs%20WHERE%20%7BGRAPH%20%3Fg%7B%3Fs%20%3Fp%20%3Fo%7D%7D"`) ... `id` of the Knowlege base db 
+    + kb (required, string, `gate1`) ... `id` of the Knowlege base  
+    + query (optional, string, `"SELECT%20%3Fs%20WHERE%20%7BGRAPH%20%3Fg%7B%3Fs%20%3Fp%20%3Fo%7D%7D"`) ... url encoded sparql query. 
 
 + Request (application/x-www-form-urlencoded)
 
@@ -149,7 +150,7 @@ The body of the request should be same form-encoded parameters of the GET varian
 + Authorization ... [Base64](http://en.wikipedia.org/wiki/Base64) encoded string literal in form _"username:password"_ preceeded by authorization method and its space.
 
 + Parameters
-    + db (required, string, `gate1`) ... `id` of the Knowlege base db 
+    + kb (required, string, `gate1`) ... `id` of the Knowlege base kb 
 
 + Request (application/x-www-form-urlencoded)
 
@@ -166,7 +167,7 @@ The body of the request should be same form-encoded parameters of the GET varian
     [SPARQL query][]
 
 
-## SPARQL unprotected query [/ekb/{db}/_sparql{?query}]
+## SPARQL unprotected query [/{kb}/query{?query}]
 This end point behave exactly as  sparq one. But it is not protected during learning and reasoning windows.
 This means that the enpoint is always accessible but data consistency is not guarantee.
 
@@ -177,8 +178,8 @@ See SPARQL query for more info.
 + Authorization ... [Base64](http://en.wikipedia.org/wiki/Base64) encoded string literal in form _"username:password"_ preceeded by authorization method and its space.
 
 + Parameters
-    + db (required, string, `gate1`) ... `id` of the Knowlege base db 
-    + query (optional, string, `"SELECT%20%3Fs%20WHERE%20%7BGRAPH%20%3Fg%7B%3Fs%20%3Fp%20%3Fo%7D%7D"`) ... `id` of the Knowlege base db 
+    + kb (required, string, `gate1`) ... `id` of the Knowlege base kb 
+    + query (optional, string, `"SELECT%20%3Fs%20WHERE%20%7BGRAPH%20%3Fg%7B%3Fs%20%3Fp%20%3Fo%7D%7D"`) ... url encoded sparql query. 
 
 + Request (application/x-www-form-urlencoded)
 
@@ -197,7 +198,7 @@ See SPARQL query for more info.
 + Authorization ... [Base64](http://en.wikipedia.org/wiki/Base64) encoded string literal in form _"username:password"_ preceeded by authorization method and its space.
 
 + Parameters
-    + db (required, string, `gate1`) ... `id` of the Knowlege base db 
+    + kb (required, string, `gate1`) ... `id` of the Knowlege base kb 
 
 + Request (application/x-www-form-urlencoded)
 
@@ -233,7 +234,7 @@ and forcing your preferred resource representation.
 The mimetype must be url encoded (i.e. _output=application%2Fjson).
 
 
-## Job Collection [/ekb/{db}/jobs]
+## Job Collection [/ekb/{kb}/jobs]
 
 + Model (application/json)
 
@@ -278,7 +279,7 @@ Lists your job.  By default, completed jobs (with their execution report) are re
 + Authorization ... [Base64](http://en.wikipedia.org/wiki/Base64) encoded string literal in form _"username:password"_ preceeded by authorization method and its space.
 
 + Parameters
-    + db (required, string, `"gate1"`) ... `id` of the Knowlege base db 
+    + kb (required, string, `"gate1"`) ... `id` of the Knowlege base kb 
 
 + Request
 
@@ -299,14 +300,14 @@ Accepts following x-www-form-urlencoded vars:
 | var   | default value | ver type | description |
 |-------|---------------|----------|-------------|
 | mode | incremental | 'incremental' or 'reset' | "incremental" adds data to KB, "reset" clear knowledge (tabula rasa) before learning. |
-| db | -- | string  | the knowledge db id  |
+| kb | -- | string  | the knowledge kb id  |
 | ds | pings://ping.linkeddata.center/ | url | the uri of the resource to load |
 | graph | provenance | "provenance" or "default" or url | RDF grapf to be use for data: with 'provenance' uses the uri of data provenance to name graph, with 'default' uses the default graph for all data,otherwhise you can specify an uri for the graph |
 
 + Authorization ... [Base64](http://en.wikipedia.org/wiki/Base64) encoded string literal in form _"username:password"_ preceeded by authorization method and its space.
 
 + Parameters
-    + db (required, string, `"gate1"`) ... `id` of the Knowlege base db 
+    + kb (required, string, `"gate1"`) ... `id` of the Knowlege base kb 
 
 + Request (application/x-www-form-urlencoded)
 
@@ -316,7 +317,7 @@ Accepts following x-www-form-urlencoded vars:
     
     + Body
 
-            type=learn&db=myDb&index=pings
+            type=learn&kb=myDb&index=pings
         
 + Response 201 (application/json)
 
@@ -335,7 +336,7 @@ Deletes all your jobs, both the waiting to be executed and the completed ones.
 + Authorization ... [Base64](http://en.wikipedia.org/wiki/Base64) encoded string literal in form _"username:password"_ preceeded by authorization method and its space.
 
 + Parameters
-    + db (required, string, `gate1`) ... `id` of the Knowlege base db 
+    + kb (required, string, `gate1`) ... `id` of the Knowlege base kb 
 
 + Request
 
@@ -349,11 +350,11 @@ Deletes all your jobs, both the waiting to be executed and the completed ones.
 
 
 
-## Job [/ekb/{db}/job/{id}]
+## Job [/ekb/{kb}/job/{id}]
 A single Job object with all its details.
 
 + Parameters
-    + db (required, string, `gate1`) ... `id` of the Knowlege base db 
+    + kb (required, string, `gate1`) ... `id` of the Knowlege base kb 
     + id (required, string, `"5443bd792b8fa"`) ... `id` of the Job 
 
 + Model (application/json)
@@ -383,7 +384,7 @@ Get a job state representation, completed with all available execution informati
 + Authorization ... [Base64](http://en.wikipedia.org/wiki/Base64) encoded string literal in form _"username:password"_ preceeded by authorization method and its space.
 
 + Parameters
-    + db (required, string, `gate1`) ... `id` of the Knowlege base db 
+    + kb (required, string, `gate1`) ... `id` of the Knowlege base kb 
 
 + Request
 
@@ -400,7 +401,7 @@ Get a job state representation, completed with all available execution informati
 + Authorization ... [Base64](http://en.wikipedia.org/wiki/Base64) encoded string literal in form _"username:password"_ preceeded by authorization method and its space.
 
 + Parameters
-    + db (required, string, `gate1`) ... `id` of the Knowlege base db 
+    + kb (required, string, `gate1`) ... `id` of the Knowlege base kb 
 
 + Request
 
@@ -427,7 +428,7 @@ quadstore APIs.
 + Authorization ... [Base64](http://en.wikipedia.org/wiki/Base64) encoded string literal in form _"username:password"_ preceeded by authorization method and its space.
 
 + Parameters
-    + kb (required, string, `gate1`) ... `id` of the user (same as Knowlege base db) 
+    + kb (required, string, `gate1`) ... `id` of the user (same as Knowlege base kb) 
 
 + Request
 
