@@ -11,14 +11,15 @@ the [KEES architecture](http://www.e-artspace.com/home/project/kees).
 
 ###RESTful APIs overview
 
-| Group               | Resource                | GET | PUT | POST | DELETE |
-|---------------------|-------------------------|-----|-----|------|--------|
-| SPARQL              | /{kb}/sparql            | X   |     | X    |        |
-|                     | /{kb}/query             | X   |     | X    |        |
-| Job management      | /ekb/{kb}/jobs          | X   |     | X    | X      |
-|                     | /ekb/{kb}/job/{id}      | X   |     |      | X      |
-| Security management | /{kb}/pwd               |     | X   |      |        |
-| (for SaaS model)    |                         |     |     |      |        |
+| Group               | Resource                | GET | PUT | POST | DELETE | NOTES                  |
+|---------------------|-------------------------|-----|-----|------|--------|------------------------|
+| SPARQL              | /ekb/{kb}/sparql        | X   |     | X    |        |                        |
+|                     | /ekb/{kb}/unsafe        | X   |     | X    |        | For debugging purposes |
+| Learning management | /ekb/{kb}/jobs          | X   |     | X    | X      |                        |
+|                     | /ekb/{kb}/job/{id}      | X   |     |      | X      |                        |
+| Security management | /ekb/{kb}/pwd           |     | X   |      |        | Only for SaaS model    |
+| Facilities          | /ekb/{kb}/jobform       | X   |     |      |        |                        |
+|                     | /ekb/{kb}/sparqlForm    | X   |     |      |        | For debugging purposes |
 
 To access eKB APIs  you alway need to provide your credentials using
 [http basic authentication](http://en.wikipedia.org/wiki/Basic_access_authentication).
@@ -69,7 +70,7 @@ Here is an example of a 404 error in json representation:
 # Group SPARQL end-point
 Access to the knowledge base.
 
-## SPARQL query [/{kb}/sparql{?query}]
+## SPARQL query [/ekb/{kb}/sparql{?query}]
 
 **Protection from inconsistent data**
 
@@ -167,8 +168,8 @@ The body of the request should be same form-encoded parameters of the GET varian
     [SPARQL query][]
 
 
-## SPARQL unprotected query [/{kb}/query{?query}]
-This end point behave exactly as  sparq one. But it is not protected during learning and reasoning windows.
+## SPARQL unprotected query [/ekb/{kb}/unsafe{?query}]
+This end point behave exactly as sparq one. But it is not protected during learning and reasoning windows.
 This means that the enpoint is always accessible but data consistency is not guarantee.
 
 See SPARQL query for more info.
@@ -437,3 +438,25 @@ quadstore APIs.
             newpassword
             
 + Response 200
+
+
+# Group Facilities
+Web wrapper for debugging purposes.
+
+## Submit job by form [/ekb/{kb}/jobForm]
+Create an html for to submit a new learning job from a web browser. It is a wrapper for /ekb/{kb}/jobs [POST} method.
+
+### Create a new job by form [GET]
++ Authorization ... [Base64](http://en.wikipedia.org/wiki/Base64) encoded string literal in form _"username:password"_ preceeded by authorization method and its space.
+            
++ Response 200
+
+## Submit sparq query by form [/ekb/{kb}/sparqlForm]
+Create an html for to submit a new sparq Query job from a web browser. It is a wrapper for /ekb/{kb}/unsafe [GET] method. 
+Mainly used for debugging purposess or to url encode a sparql query.
+
+### Create a new sparql by form [GET]
++ Authorization ... [Base64](http://en.wikipedia.org/wiki/Base64) encoded string literal in form _"username:password"_ preceeded by authorization method and its space.
+            
++ Response 200
+
