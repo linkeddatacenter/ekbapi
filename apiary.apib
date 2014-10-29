@@ -20,7 +20,6 @@ the [KEES architecture](http://www.e-artspace.com/home/project/kees).
 | Security management | /ekb/{kb}/pwd           |     | X   |      |        | Only for SaaS model    |
 | Facilities          | /ekb/{kb}/jobform       | X   |     |      |        |                        |
 |                     | /ekb/{kb}/sparqlform    | X   |     |      |        | For debugging purposes |
-|                     | /ekb/{kb}/logout        | X   |     |      |        | For debugging purposes |
 
 To access eKB APIs  you alway need to provide your credentials using
 [http basic authentication](http://en.wikipedia.org/wiki/Basic_access_authentication).
@@ -449,24 +448,25 @@ Create an html for to submit a new learning job from a web browser. It is a wrap
 
 ### Create a new job by form [GET]
 + Authorization ... [Base64](http://en.wikipedia.org/wiki/Base64) encoded string literal in form _"username:password"_ preceeded by authorization method and its space.
+
++ Parameters
+    + kb (required, string, `gate1`) ... `id` of the Knowlege base  
             
 + Response 200
 
-## Submit sparq query by form [/ekb/{kb}/sparqlForm]
+## Submit sparq query by form [/ekb/{kb}/sparqlform{?query}]
 Create an html for to submit a new sparq Query job from a web browser. It is a wrapper for /ekb/{kb}/unsafe [GET] method. 
 Mainly used for debugging purposess or to url encode a sparql query.
 
 ### Create a new sparql by form [GET]
 + Authorization ... [Base64](http://en.wikipedia.org/wiki/Base64) encoded string literal in form _"username:password"_ preceeded by authorization method and its space.
+
++ Parameters
+    + kb (required, string, `gate1`) ... `id` of the Knowlege base  
+    + query (optional, string, `"SELECT%20%3Fs%20WHERE%20%7BGRAPH%20%3Fg%7B%3Fs%20%3Fp%20%3Fo%7D%7D"`) ... url encoded sparql query to edit. 
+
             
 + Response 200
 
 
-## Logout from interactive session [/ekb/{kb}/logout]
-Logout from a previous interactive session. Usefull to switch user/knowledge base from a browser session
-
-### Create a new sparql by form [GET]
-+ Authorization ... [Base64](http://en.wikipedia.org/wiki/Base64) encoded string literal in form _"username:password"_ preceeded by authorization method and its space.
-            
-+ Response 200
 
