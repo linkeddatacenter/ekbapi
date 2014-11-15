@@ -443,8 +443,8 @@ quadstore APIs.
 # Group Facilities
 Web wrapper for debugging purposes.
 
-## Submit job by form [/ekb/{kb}/jobForm]
-Create an html for to submit a new learning job from a web browser. It is a wrapper for /ekb/{kb}/jobs [POST} method.
+## Submit job by form [/ekb/{kb}/jobsform]
+Create an html for to submit a new learning job from a web browser. It is a wrapper for create job method.
 
 ### Create a new job by form [GET]
 + Authorization ... [Base64](http://en.wikipedia.org/wiki/Base64) encoded string literal in form _"username:password"_ preceeded by authorization method and its space.
@@ -455,7 +455,7 @@ Create an html for to submit a new learning job from a web browser. It is a wrap
 + Response 200
 
 ## Submit sparq query by form [/ekb/{kb}/sparqlform{?query}]
-Create an html for to submit a new sparq Query job from a web browser. It is a wrapper for /ekb/{kb}/unsafe [GET] method. 
+Create an html for to submit a new sparq Query job from a web browser. It is a wrapper for unsafe endpoint query method method. 
 Mainly used for debugging purposess or to url encode a sparql query.
 
 ### Create a new sparql by form [GET]
