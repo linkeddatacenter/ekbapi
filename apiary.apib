@@ -21,12 +21,12 @@ the [KEES architecture](http://www.e-artspace.com/home/project/kees).
 | Facilities          | /ekb/{kb}/jobform       | X   |     |      |        |                        |
 |                     | /ekb/{kb}/sparqlform    | X   |     |      |        | For debugging purposes |
 
-To access eKB APIs  you alway need to provide your credentials using
+To access eKB APIs  you alway need to provide your LinkedData.Center credentials using
 [http basic authentication](http://en.wikipedia.org/wiki/Basic_access_authentication).
 
-Beside these, eKB appliances and eKB corporate services allow a transparent access
+Beside these, LinkedData.Center Appliances and Corporate plans allow a transparent access
 to backing quadstore specific APIs.
-Depending from the configuration of the eKB service you chosed,
+Depending from the configuration of the plan you chosed,
 you can get benefit of all quadstore vendor web services:
 
 | Quadstore     | APIs documentation URL         |
@@ -75,7 +75,7 @@ Access to the knowledge base.
 **Protection from inconsistent data**
 
 In accordance with the  KEES architecture, the knowledge base may be in a state temporarily inconsistent during the phases 
-of acquisition of new data (learning window) or during the steps of the computation of inferences (reasoning window).
+of acquisition of new data (learning window) or during the steps of the inference computation (reasoning window).
 During these temporary windows, the result of the query to the knowledge base may be incorrect.
 
 This endpoint is protected by a guard that prevents access to the data during learning and reasoning windows. 
