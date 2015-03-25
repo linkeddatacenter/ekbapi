@@ -330,9 +330,9 @@ Depending from SPARQL query, following MIME types are recognized in the Accept h
 | Query type | Supported MIMETYPE in Accept header                                                                |
 |------------|----------------------------------------------------------------------------------------------------|
 | SELECT     | application/sparql-results+xml OR application/sparql-results+json                                  |
-| ASK        | text/boolean                                                                                       |
+| ASK        | application/sparql-results+xml OR text/boolean                                                                                       |
 | CONSTRUCT or DESCRIBE | application/rdf+xml OR text/turtle OR application/x-turtle OR text/x-nquads OR application/ld+json |
-
+| any sparql update query |application/sparql-results+xml OR text/boolean  |
 
 If no query parameter is supplied it returns 
 [end-point service Description](http://www.w3.org/TR/sparql11-service-description/) in one of available RDF serialization.
