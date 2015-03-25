@@ -1,41 +1,156 @@
 FORMAT: 1A
 
-# LinkedData.Center APIs
+# eKB APIs for LinkedData.Center
 ![e-artspace logo](http://www.e-artspace.com/home/images/stories/ea/ealogo-small.png)
 
-[LinkedData.Center platform](http://linkeddata.center/) is a service provided by [E-Artspace](http://www.e-artspace.com).
-It exposes some RESTful APIs to popolate and query a knowledge base compliant to the RDF standard.
+eKB is a set of RESTful APIs designed by [e-Artspace](http://www.e-artspace.com) to popolate and
+query any knowledge base compliant with the [W3C RDF standard](http://www.w3.org/TR/rdf11-primer/) 
+and with the [Knowledge Exchange Engine Service (KEES) architecture](http://www.e-artspace.com/home/project/kees).
+
+eKB APIs are provide by all [LinkedData.Center services](LinkedData.Center).
 
 
-###RESTful APIs overview
+| Resource              | GET | PUT | POST | DELETE |
+|-----------------------|-----|-----|------|--------|
+| /{kb}                 | X   | X   | X    | X      |
+| /{kb}/sparql          | X   |     | X    |        |
+| /{kb}/tasks           | X   |     | X    | X      |
+| /{kb}/user/{user}/pwd |     | X   |      |        |
 
-| Group               | Resource                | GET | PUT | POST | DELETE | NOTES                  |
-|---------------------|-------------------------|-----|-----|------|--------|------------------------|
-| SPARQL              | /ekb/{kb}/sparql        | X   |     | X    |        |                        |
-|                     | /ekb/{kb}/unsafe        | X   |     | X    |        | For debugging purposes |
-| Learning management | /ekb/{kb}/jobs          | X   |     | X    | X      |                        |
-|                     | /ekb/{kb}/job/{id}      | X   |     |      | X      |                        |
-| Security management | /ekb/{kb}/pwd           |     | X   |      |        | Only for SaaS model    |
-| Facilities          | /ekb/{kb}/jobform       | X   |     |      |        |                        |
-|                     | /ekb/{kb}/sparqlform    | X   |     |      |        | For debugging purposes |
+## The knowledge base
+eKB implements a semantic system where infomation is described as a set of 
+statement according with the W3C standard 
+[Resource Description Framework (RDF)](http://www.w3.org/TR/rdf11-primer/).
 
-To access eKB APIs  you alway need to provide your LinkedData.Center credentials using
-[http basic authentication](http://en.wikipedia.org/wiki/Basic_access_authentication).
+There are two disjonined set of statemens. *TBox* and *ABox*.
+Together ABox and TBox make up the whole *knowledge base*:
 
-Beside these, LinkedData.Center Appliances and Corporate plans allow a transparent access
-to backing quadstore specific APIs.
-Depending from the configuration of the plan you chosed,
-you can get benefit of all quadstore vendor web services:
+ - TBox statements describe a system in terms of controlled vocabularies, 
+for example, a set of classes and properties such as:
+**All Students are Persons** or **There are two types of Persons: Students and Teachers**.
 
-| Quadstore     | APIs documentation URL         |
-|---------------|--------------------------------|
-| Stardog 2.2.2 | http://docs.stardog.apiary.io/ |
+ - ABox are TBox-compliant statements about that vocabulary. 
+ABox statements describe facts about things, using vocabularies defined in Tbox such as
+**John is a Person** or **Mary has blue eyes**.
+
+In other words, TBox statements are sometimes associated with object-oriented 
+classes and ABox statements associated with instances of those classes.
+
+eKB manages both TBox and ABox statemenst.
+
+TBox statements tend to be more permanent within a knowledge base and so they are loaded during
+the knowledge base initialization (KEES booting window). 
+In contrast, ABox statements are much more dynamic in nature and they are reloaded (only if changed)
+during the KEES learning window. A special type of ABox statements are those that are inferred
+during the KEES Reasoning windows evaluating axioms and rules contained into TBox.
+
+eKB always traks the provenance of each statement in ABox storing all information
+as linked data in a graph database (quadstore).
+
+## The knowledge base configuration
+A *Knowledge Base configuration* is a collection of metadata that describe
+TBox or Abox Statements.
+
+The [KEES Ontology](http://ontology.it/kees/v1) and [VoID ontology](http://www.w3.org/TR/void/)
+define the vocabularies used to express the knowlege base configuration.
+
+TBox resources divide into *Vocabularies* and *Rules*.
+
+Both Vocabularies and Rules statements are stored in the default graph of the graph database.
+All appliable rules are executed during the KEES Reasoning windows. 
+
+All ABox statemenst lives in named graphs.
+
+The uri of the knowlege base configuration MUST BE *urn:kees:kb* and all knowlege base metadata 
+(such is configuration info) is stored in *urn:kees* named graph.
 
 
+A minimal KB configuration is like:
 
-###Typical Server Responses
+    <urn:kees:kb> void:subset 
+            [ kees:source <http://data.example.com/file1.ttl> ]
+            [ kees:source <http://data.example.com/file2.ttl> ] ;
+    .
+    
+A more detailed KB configuration is like:
 
-Following table sumarize typycal http status code returned by APIS
+    <urn:kees:kb>
+        dcterms:title "demo" ;
+        dcterms:description "Contains a partial copy of dbpedia"@en ;
+        dcterms:license <http://www.opendatacommons.org/odc-public-domain-dedication-and-licence/>;
+        wv:norms <http://www.opendatacommons.org/norms/odc-by-sa/>;
+        void:exampleResource 
+            <http://dbpedia.org/resource/Berlin> , 
+            <http://dbpedia.org/resource/Physics> ,
+            <http://dbpedia.org/resource/Ludwig_van_Beethoven> ;
+
+        #TBox
+        void:vocabulary <http://purl.org/goodrelations/v1.owl>;
+        kees:rule
+            [
+                a kees:Rule
+                kees:ruleContent   """
+                    PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+                    PREFIX gr: <http://purl.org/goodrelations/v1#>
+                    PREFIX :<urn:test:>
+                    IF {
+                        ?offering gr:hasPriceSpecification ?ps .
+                        ?ps gr:hasCurrencyValue ?price .
+                        FILTER (?price >= 200.00).
+                    }
+                    THEN {
+                        ?offering a :ExpensiveProduct .
+                    }
+               """.
+            ]
+        ;
+           
+        # ABox
+        void:subset 
+            [
+                a kees:ABoxGraph;
+                kees:source <http://data.example.com/file1.ttl> ;
+                kees:accrualPeriodicity kees:montly ;
+                kees:accrualPolicy kees:simpleLearning ;
+            ],
+            [ kees:source <http://data.example.com/file2.ttl> ] ;
+    .
+
+    
+The knowledge base configuration is always initialized with:
+
+    <urn:kees:kb> a kees:KnowledgeBase ;
+        foaf:homepage <> ;
+        void:feature 
+            <http://www.w3.org/ns/formats/RDF_XML> ,
+            <http://www.w3.org/ns/formats/Turtle> ,
+            <http://www.w3.org/ns/formats/N-Triples> ;
+        void:sparqlEndpoint <sparql>;
+    .
+
+# Group eKB APIs
+
+## Autentication
+
+To access eKB APIs you always need to provide your LinkedData.Center credentials using
+[http basic authentication](http://en.wikipedia.org/wiki/Basic_access_authentication):
+
++ Authorization ... [Base64](http://en.wikipedia.org/wiki/Base64) encoded string literal in form _"username:password"_ preceeded by authorization method and its space.
+
+
+## Content negotiation
+All eKB APIs supports [http content negotiation](http://en.wikipedia.org/wiki/Content_negotiation) 
+for state representation rendering.
+Following MIME types are supported in the Accept header: text/html, application/rdf+xml, text/turtle.
+Support to other mimetype  like application/x-turtle, text/x-nquads OR application/ld+json 
+is experimental.
+
+You can use *_output=mimetype* parameter in any URL to override http content negotiation 
+and forcing your preferred resource representation. 
+
+## Server Responses
+
+Following table sumarize typical http status code returned by APIS
 
 | Code | Description                                                                                     | 
 |------|-------------------------------------------------------------------------------------------------|
@@ -65,21 +180,118 @@ Here is an example of a 404 error in json representation:
             httpStatus: 404
         }
 
-# Group SPARQL end-point
-Access to the knowledge base.
+## Knowledge base configuration API [/{kb}]
 
-## SPARQL query [/ekb/{kb}/sparql{?query}]
++ Parameters
+    + kb (required, string, `demo`) ... `id` of the Knowlege base  
+
+### Get configuration [GET]
+
+Returns the current knowledge base config.
+
++ Request (text/turtle)
+
+    + Headers
+    
+            Accept: text/turtle
+            
++ Response 200
+
+
+    + Body
+    
+            @prefix void: <http://rdfs.org/ns/void#> .
+            @prefix foaf: <http://xmlns.com/foaf/0.1/> ..
+            @prefix kees: <http://ontology.it/kees/v1#> .
+            
+            # created by boot windows
+            <urn:kees:kb> a kees:KnowledgeBase ;
+                foaf:homepage <> ;
+                void:feature 
+                    <http://www.w3.org/ns/formats/RDF_XML> ,
+                    <http://www.w3.org/ns/formats/Turtle> ,
+                    <http://www.w3.org/ns/formats/N-Triples> ;
+                void:sparqlEndpoint <sparql>;
+            .
+
+
+
+### Override current configuration [PUT]
+
+Substitute the knowledge base configuration with the request bosy content.
+
++ Request (text/turtle)
+            
+    + Body
+
+            [] a kees:KnowledgeBase ;
+                void:subset 
+                    [ kees:source <http://data.example.com/file1.ttl> ]
+                    [ kees:source <http://data.example.com/file2.ttl> ] ;
+            .    
+            
++ Response 200
+
+    + Body
+    
+            Knowledge base configuration updated.
+
+
+
+### Upload a new configuration [POST]
+
+This API allows you to upload a RDF file containing a knowledge base configuration.
+The file contents replace current configuration.
+
++ Parameters
+    + kb (required, string, `demo`) ... `id` of the Knowlege base  
+            
++ Response 200
+
+    + Body
+    
+            New configuration uploaded.
+            
+### Empty the configuration [DELETE]
+
+This API delete knowledge base configuration. It is equivalent to a call to
+*sparql?query=DROP ALL* API
+
++ Response 200
+
+    + Body
+    
+            true
+            
+
+## SPARQL API [/{kb}/sparql{?guard,query}]
 
 **Protection from inconsistent data**
 
-In accordance with the  KEES architecture, the knowledge base may be in a state temporarily inconsistent during the phases 
+The knowledge base may be in a state temporarily inconsistent during the phases 
 of acquisition of new data (learning window) or during the steps of the inference computation (reasoning window).
 During these temporary windows, the result of the query to the knowledge base may be incorrect.
 
-This endpoint is protected by a guard that prevents access to the data during learning and reasoning windows. 
-In these cases, any access to endpoint receives a 503 error (Service Unavailable). 
-Http header Retry-After is given an estimate of the time (in seconds) that you should wait before attempting access.
+The endpoint is protected by a guard that prevents query during learning and reasoning windows. 
+In these cases, any access to the endpoint receives a 503 error (Service Unavailable). 
+The http header *Retry-After* contains an estimate of the time (in seconds) that you should wait before attempting a new access.
 
+The endpoint guard can be disabled using the optional paramether guard=disabled.
+
+
++ Parameters
+    + kb (required, string, `demo`) ... `id` of the Knowlege base  
+    + query (optional, string, `SELECT%20*%20WHERE%20%7B%3Fs%20%3Fp%20%3Fo%7D`) ... url encoded sparql query.
+    + guard (optional, string, `enable`) ... block access during learning.
+    
+        | Value        | Meaning                                                |
+        | ------------ |:------------------------------------------------------:|
+        | enable       | block endpoint during learning and reasoning (default) |
+        | disable      | always allow endpoint access                           |
+
+        + Values
+            + `enable`
+            + `disable`
 
 
 + Model (application/sparql-results+xml)
@@ -92,13 +304,10 @@ Http header Retry-After is given an estimate of the time (in seconds) that you s
             <sparql xmlns='http://www.w3.org/2005/sparql-results#'>
                 <head>
                     <variable name='s'/>
+                    <variable name='p'/>
+                    <variable name='o'/>
                 </head>
                 <results>
-                    <result>
-                        <binding name='s'>
-                            <uri>tag:ekb:api:#V1</uri>
-                        </binding>
-                    </result>
                 </results>
             </sparql> 
 
@@ -124,11 +333,6 @@ Depending from SPARQL query, following MIME types are recognized in the Accept h
 If no query parameter is supplied it returns 
 [end-point service Description](http://www.w3.org/TR/sparql11-service-description/) in one of available RDF serialization.
 
-+ Authorization ... [Base64](http://en.wikipedia.org/wiki/Base64) encoded string literal in form _"username:password"_ preceeded by authorization method and its space.
-
-+ Parameters
-    + kb (required, string, `gate1`) ... `id` of the Knowlege base  
-    + query (optional, string, `"SELECT%20%3Fs%20WHERE%20%7BGRAPH%20%3Fg%7B%3Fs%20%3Fp%20%3Fo%7D%7D"`) ... url encoded sparql query. 
 
 + Request (application/x-www-form-urlencoded)
 
@@ -138,7 +342,7 @@ If no query parameter is supplied it returns
             
 + Response 200
 
-    [SPARQL query][]
+    [SPARQL API][]
 
 
 
@@ -146,11 +350,6 @@ If no query parameter is supplied it returns
 Post action can be used for queries whose length exceeds the maximum allowed number of characters in a URI.
 The body of the request should be same form-encoded parameters of the GET variant.
 
-+ Authorization ... [Base64](http://en.wikipedia.org/wiki/Base64) encoded string literal in form _"username:password"_ preceeded by authorization method and its space.
-
-+ Parameters
-    + kb (required, string, `gate1`) ... `id` of the Knowlege base kb 
-
 + Request (application/x-www-form-urlencoded)
 
     + Headers
@@ -159,276 +358,128 @@ The body of the request should be same form-encoded parameters of the GET varian
 
     + Body
 
-            query=SELECT%20%3Fs%20WHERE%20%7BGRAPH%20%3Fg%7B%3Fs%20%3Fp%20%3Fo%7D%7D
+            query=SELECT%20*%20WHERE%20%7B%3Fs%20%3Fp%20%3Fo%7D
             
 + Response 200
 
-    [SPARQL query][]
+    [SPARQL API][]
 
 
-## SPARQL unprotected query [/ekb/{kb}/unsafe{?query}]
-This end point behave exactly as sparq one. But it is not protected during learning and reasoning windows.
-This means that the enpoint is always accessible but data consistency is not guarantee.
 
-See SPARQL query for more info.
+## Tasks API [/{kb}/tasks{?status,type}]
 
-### SPARQL unprotected query via get [GET]
+Populate the knowledge base drivinig a KEES Booting, Learning and Reasoning windows. 
+
+Tasks are executed asyncronusly as soon as there  are enough resources available in the system.
+
+Each task is provided with an unique id in the knowledge base. 
+The task state can be inspected before, after and during execution.
+Tasks information is stored in <urn:kees> named graph.
 
 + Authorization ... [Base64](http://en.wikipedia.org/wiki/Base64) encoded string literal in form _"username:password"_ preceeded by authorization method and its space.
 
 + Parameters
-    + kb (required, string, `gate1`) ... `id` of the Knowlege base kb 
-    + query (optional, string, `"SELECT%20%3Fs%20WHERE%20%7BGRAPH%20%3Fg%7B%3Fs%20%3Fp%20%3Fo%7D%7D"`) ... url encoded sparql query. 
-
-+ Request (application/x-www-form-urlencoded)
-
-    + Headers
-    
-            Accept: application/sparql-results+xml
-            
-+ Response 200
-
-    [SPARQL query][]
+    + kb (required, string, `demo`) ... `id` of the Knowlege base  
 
 
-
-### SPARQL unprotected query via post [POST]
-
-+ Authorization ... [Base64](http://en.wikipedia.org/wiki/Base64) encoded string literal in form _"username:password"_ preceeded by authorization method and its space.
+### List task [GET]
+Lists tasks (pending, running and complete). By default, completed tasks are retained 
+for one day before to be purged.
 
 + Parameters
-    + kb (required, string, `gate1`) ... `id` of the Knowlege base kb 
-
-+ Request (application/x-www-form-urlencoded)
-
-    + Headers
+    + status (optional, string, `running`) ... show only task in a defined status.
     
-            Accept: application/sparql-results+xml
-
-    + Body
-
-            query=SELECT%20%3Fs%20WHERE%20%7BGRAPH%20%3Fg%7B%3Fs%20%3Fp%20%3Fo%7D%7D
-            
-+ Response 200
-
-    [SPARQL query][]
+        + Values
+            + `all`
+            + `pending`
+            + `running`
+            + `complete`
+            + `lastcomplete`
+            + `tobepurged`
 
 
-# Group Job management
-Job management APIs allow to launch learning task that populate the knowledge base. 
-Jobs are executed asyncronusly as soon as there are enough resources available in the system.
+    + type (optional, string, `all`) ... block access during learning.
 
-Following jobs type are supported:
- * **learn**: used to initatie a [KEES](http://www.e-artspace.com/home/project/kees) learning and reasoning window, where new data discovered and learned.
+        + Values
+            + `all`
+            + `booting`
+            + `learning`
+            + `reasoning`
 
-Each job is provided with an unique id known only to the user that posted it. 
-The job state can be inspected before and during execution. 
-After execution the job status contains the full execution log (job execution report).
-
-Job Collection APIs support [http content negotiation](http://en.wikipedia.org/wiki/Content_negotiation) for state representation rendering.
-Following MIME types are supported in the Accept header: text/html, application/rdf+xml, text/turtle, application/x-turtle, text/x-nquads OR application/ld+json 
-
-You can use *_output=mimetype* parameter in any URL to override http content negotiation 
-and forcing your preferred resource representation. 
-The mimetype must be url encoded (i.e. _output=application%2Fjson).
-
-
-## Job Collection [/ekb/{kb}/jobs]
-
-+ Model (application/json)
-
-    Json representation of Jobs Collection Resource. The Jobs resources in collections are embedded. Note the embedded Jobs resource are incomplete representations of the Jobs in question. Use the respective Jobs link to retrieve its full representation.
-
-    + Headers
-    
-            Link: <jobs>; rel="self"
-
-    + Body
-
-            [  
-               {  
-                  "id":"5442847218008",
-                  "timestamp":1413645426,
-                  "lastUpdate":"2014-10-18T15:17:06+00:00",
-                  "reportSize":0,
-                  "uri":"job\/5442847218008",
-                  "status":"waiting"
-               },
-               {  
-                  "id":"5443bd70785dc",
-                  "timestamp":1413725552,
-                  "lastUpdate":"2014-10-19T13:32:32+00:00",
-                  "reportSize":0,
-                  "uri":"job\/5443bd70785dc",
-                  "status":"ready"
-               },
-               {  
-                  "id":"5443bd792b8fa",
-                  "timestamp":1413725561,
-                  "lastUpdate":"2014-10-19T13:32:41+00:00",
-                  "reportSize":0,
-                  "uri":"job\/5443bd792b8fa",
-                  "status":"learning"
-               }
-            ]   
-
-### List all jobs [GET]
-Lists your job.  By default, completed jobs (with their execution report) are retained for one day before to be deleted.
-
-+ Authorization ... [Base64](http://en.wikipedia.org/wiki/Base64) encoded string literal in form _"username:password"_ preceeded by authorization method and its space.
-
-+ Parameters
-    + kb (required, string, `"gate1"`) ... `id` of the Knowlege base kb 
 
 + Request
 
     + Headers
         
-            Accept: application/json
+            Accept: text/turtle
  
 + Response 200
 
-    [Job Collection][]
+
+    + Headers
+        
+            Content-type: text/turtle
+            
+    + Body
+    
+            <urn:kees:task:xxx> a kees:LearningTask;
+                dcterms:identifier "xxx" ;
+                dcterms:dateSubmitted "......"^xsd:datetime ;
+            .
+            <urn:kees:task:yyy> a kees:ReasoningTask;
+                dcterms:identifier "yyy" ;
+                dcterms:dateSubmitted "......"^xsd:datetime ;
+            .
 
 
-### Create a new job [POST]
-Creates a new learning Job to be executed as soon as possible.
+### Start a KEES cycle [POST]
+Ask for a new kees cicle to be executed as soon as possible.
 
 Accepts following x-www-form-urlencoded vars:
 
-| var   | default value | ver type | description |
-|-------|---------------|----------|-------------|
-| mode | incremental | 'incremental' or 'reset' | "incremental" adds data to KB, "reset" clear knowledge (tabula rasa) before learning. |
-| kb | -- | string  | the knowledge kb id  |
-| ds | pings://ping.linkeddata.center/ | url | the uri of the resource to load |
-| graph | provenance | "provenance" or "default" or url | RDF grapf to be use for data: with 'provenance' uses the uri of data provenance to name graph, with 'default' uses the default graph for all data,otherwhise you can specify an uri for the graph |
-
-+ Authorization ... [Base64](http://en.wikipedia.org/wiki/Base64) encoded string literal in form _"username:password"_ preceeded by authorization method and its space.
-
-+ Parameters
-    + kb (required, string, `"gate1"`) ... `id` of the Knowlege base kb 
+| var       | default| type              | description                         |
+|-----------|------- |-------------------|-------------------------------------|
+| booting   | false  | 'true' or 'false' | Request booting window processing   |
+| learning  | true   | 'true' or 'false' | Request learning window processing  |
+| reasoning | true   | 'true' or 'false' | Request reasoning window processing |
 
 + Request (application/x-www-form-urlencoded)
 
-    + Headers
-        
-            Accept: application/json
-    
     + Body
 
-            type=learn&kb=myDb&index=pings
+            booting=false&learning=true&reasoning=true
         
-+ Response 201 (application/json)
-
-    + Headers
-        
-            Location: job/5443d6992d4f3 
-            Link: <job/5443d6992d4f3>; rel="details",</admin/jobs>; rel="self"
-        
-    + Body
-    
-            "5443bd70785dc"
-
-### Delete all jobs [DELETE]
-Deletes all your jobs, both the waiting to be executed and the completed ones.
-
-+ Authorization ... [Base64](http://en.wikipedia.org/wiki/Base64) encoded string literal in form _"username:password"_ preceeded by authorization method and its space.
-
-+ Parameters
-    + kb (required, string, `gate1`) ... `id` of the Knowlege base kb 
-
-+ Request
-
-    + Headers
-        
-            Accept: application/json
-            
 + Response 200 (application/json)
 
-        [ "5443bd70785dc", "5442847218008", "5443bd792b8fa" ]
-
-
-
-## Job [/ekb/{kb}/job/{id}]
-A single Job object with all its details.
-
-+ Parameters
-    + kb (required, string, `gate1`) ... `id` of the Knowlege base kb 
-    + id (required, string, `"5443bd792b8fa"`) ... `id` of the Job 
-
-+ Model (application/json)
-    Json representation of Jobs Resource.
-    
-    + Headers
-
-            Link: <job>; rel="self",<../jobs>; rel="list"
-
-    + Body
-    
-            {
-               "id":"5442847218008",
-               "timestamp":1413645426,
-               "lastUpdate":"2014-10-18T15:17:06+00:00",
-               "reportSize":0,
-               "uri":"5442847218008",
-               "status":"waiting",
-               "execStatus":"-1",
-               "report":"Data not yet available. Please wait a bit and retry"
-            }
-
-
-### Retrieve a Job [GET]
-Get a job state representation, completed with all available execution information (job report).
-
-+ Authorization ... [Base64](http://en.wikipedia.org/wiki/Base64) encoded string literal in form _"username:password"_ preceeded by authorization method and its space.
-
-+ Parameters
-    + kb (required, string, `gate1`) ... `id` of the Knowlege base kb 
-
-+ Request
-
     + Headers
         
-            Accept: application/json
+            Link: <tasks?status=pending>; rel="pending"
+            
+    + Body
+    
+            Tasks submitted
 
+### Delete pending tasks [DELETE]
+Deletes all pending tasks.
+
+            
 + Response 200
 
-    [Job][]
+        All pending tasks deleted
 
 
-### Delete a Job [DELETE]
-+ Authorization ... [Base64](http://en.wikipedia.org/wiki/Base64) encoded string literal in form _"username:password"_ preceeded by authorization method and its space.
 
-+ Parameters
-    + kb (required, string, `gate1`) ... `id` of the Knowlege base kb 
-
-+ Request
-
-    + Headers
-        
-            Accept: application/json
-
-+ Response 200 (application/json)
-
-        "5443bd70785dc"
-
-
-# Group Security
-Secures some knowledge base aspects.
-
-## User password [/ekb/{kb}/pwd]
+## Change authentication password [/{kb}/user/{user}/pwd]
 Changes the password of the knowledge admin user. 
 
-This api is available only on SaaS service model.
-In Appliances an Corporate service models you can use the quadstore administration vendor control panel or
-quadstore APIs.
 
-### Change user password [PUT]
 + Authorization ... [Base64](http://en.wikipedia.org/wiki/Base64) encoded string literal in form _"username:password"_ preceeded by authorization method and its space.
 
 + Parameters
     + kb (required, string, `gate1`) ... `id` of the user (same as Knowlege base kb) 
+    + user (required, string, `admin`) ... `id` of the user (same as Knowlege base kb)
 
+### Change user password [PUT]
 + Request
 
     + Body
@@ -437,34 +488,7 @@ quadstore APIs.
             
 + Response 200
 
-
-# Group Facilities
-Web wrapper for debugging purposes.
-
-## Submit job by form [/ekb/{kb}/jobsform]
-Creates an html to submit a new learning job from web browser. It is a wrapper for create job method.
-
-### Create a new job by form [GET]
-+ Authorization ... [Base64](http://en.wikipedia.org/wiki/Base64) encoded string literal in form _"username:password"_ preceeded by authorization method and its space.
-
-+ Parameters
-    + kb (required, string, `gate1`) ... `id` of the Knowlege base  
-            
-+ Response 200
-
-## Submit sparq query by form [/ekb/{kb}/queryform{?query}]
-Creates an html  to submit a new SPARQL Query job from web browser. It is a wrapper for unsafe endpoint query method. 
-Mainly used for debugging purposes.
-
-### Create a new sparql by form [GET]
-+ Authorization ... [Base64](http://en.wikipedia.org/wiki/Base64) encoded string literal in form _"username:password"_ preceeded by authorization method and its space.
-
-+ Parameters
-    + kb (required, string, `gate1`) ... `id` of the Knowlege base  
-    + query (optional, string, `"SELECT%20%3Fs%20WHERE%20%7BGRAPH%20%3Fg%7B%3Fs%20%3Fp%20%3Fo%7D%7D"`) ... url encoded sparql query to edit. 
-
-            
-+ Response 200
-
-
+    + Body
+    
+            Password changed.
 
