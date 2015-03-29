@@ -90,7 +90,8 @@ A more detailed KB configuration is like:
         void:vocabulary <http://purl.org/goodrelations/v1.owl>;
         kees:rule
             [
-                a kees:Rule
+                a kees:Rule ;
+                dcterms:identifier "ruleid";
                 kees:ruleContent   """
                     PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
                     PREFIX gr: <http://purl.org/goodrelations/v1#>
