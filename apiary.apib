@@ -268,7 +268,7 @@ This API delete knowledge base configuration. It is equivalent to a call to
             true
             
 
-## SPARQL API [/{kb}/sparql{?guard,query}]
+## SPARQL API [/{kb}/sparql{?query,cache}]
 
 **Protection from inconsistent data**
 
@@ -278,24 +278,32 @@ During these temporary windows, the result of the query to the knowledge base ma
 
 The endpoint is protected by a guard that prevents query during learning and reasoning windows. 
 In these cases, any access to the endpoint receives a 503 error (Service Unavailable). 
-The http header *Retry-After* contains an estimate of the time (in seconds) that you should wait before attempting a new access.
 
-The endpoint guard can be disabled using the optional paramether guard=disabled.
+
+** Transparent cache management**
+
+eKB APIs cache partial query results in a very efficent and transparente way. This because we manage data ingestion through
+KEES learning and reasoning window (see "task" API).
+
+You are still able to manually submit a sparql update query but in this way you colud break the cache integrity. 
+In order to protect you from this case, sparql end point accepts only safe sparql queries statements (select,cosntruct, ask and describe). 
+If you want to manually submit a sparql update query (i.e. LOAD) you must add the optional paramether cache=clear. 
+This force cache to revalidate after the execution of your statements. Please note that a using cache=clear can be slower and costly.
 
 
 + Parameters
     + kb (required, string, `demo`) ... `id` of the Knowlege base  
     + query (optional, string, `SELECT%20*%20WHERE%20%7B%3Fs%20%3Fp%20%3Fo%7D`) ... url encoded sparql query.
-    + guard (optional, string, `enable`) ... block access during learning.
+    + cache (optional, string, `enable`) ... block access during learning.
     
         | Value        | Meaning                                                |
         | ------------ |:------------------------------------------------------:|
-        | enable       | block endpoint during learning and reasoning (default) |
-        | disable      | always allow endpoint access                           |
+        | enable       | transparent query caching is enabled (default)         |
+        | clear        | force a cache validation before executing query. Mandatory for all sparql update queries|
 
         + Values
             + `enable`
-            + `disable`
+            + `clear`
 
 
 + Model (application/sparql-results+xml)
