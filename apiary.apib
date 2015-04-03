@@ -15,6 +15,7 @@ eKB APIs are part of all [LinkedData.Center services](LinkedData.Center).
 | Resource              | GET | PUT | POST | DELETE |
 |-----------------------|-----|-----|------|--------|
 | /{kb}                 | X   | X   | X    | X      |
+| /{kb}/version         | X   | X   |      |        |
 | /{kb}/sparql          | X   |     | X    |        |
 | /{kb}/tasks           | X   |     | X    | X      |
 | /{kb}/user/{user}/pwd |     | X   |      |        |
@@ -266,6 +267,48 @@ This API delete knowledge base configuration. It is equivalent to a call to
     + Body
     
             true
+
+
+## Knowledge base version management [/{kb}/version]
+
++ Parameters
+    + kb (required, string, `demo`) ... `id` of the Knowlege base  
+
+### Get version [GET]
+
+Returns the current knowledge base version id. The version id is an unixtime stamp
+relatetd to the last knowlege base update action.
+
+            
++ Response 200
+
+
+    + Body
+    
+            1428123456
+
+
+
+### Set a new knowledge base version id [PUT]
+
+Substitute the knowledge base version id with the request body content. This action is equivalet 
+to create a new knowlege base configuration specifiing a <http://purl.org/dc/terms/identifier>
+attribute.
+
+This request forces internal caches to be revalidated.
+
++ Request (text/plain)
+            
+    + Body
+
+            1428123457    
+            
++ Response 200 (text/boolean)
+
+    + Body
+    
+            true
+
             
 
 ## SPARQL API [/{kb}/sparql{?query,cache}]
