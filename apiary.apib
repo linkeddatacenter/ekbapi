@@ -524,7 +524,13 @@ Deletes all pending tasks.
 
 
 ## Change authentication password [/{kb}/user/{user}/pwd]
-Changes the password of the knowledge admin user. 
+Changes the password of the knowledge admin user.
+Password requirements:
+   at least 6 characters and maximum of 20,
+   must contains one digit from 0-9,
+   must contains one lowercase characters,
+   must contains one uppercase characters,
+   must contains one special symbols in the list "@#$%".
 
 
 + Authorization ... [Base64](http://en.wikipedia.org/wiki/Base64) encoded string literal in form _"username:password"_ preceeded by authorization method and its space.
@@ -544,5 +550,5 @@ Changes the password of the knowledge admin user.
 
     + Body
     
-            Password changed.
+            true
 
