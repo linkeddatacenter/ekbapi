@@ -143,9 +143,6 @@ To access eKB APIs you always need to provide your LinkedData.Center credentials
 ## Content negotiation
 All eKB APIs supports [http content negotiation](http://en.wikipedia.org/wiki/Content_negotiation) 
 for state representation rendering.
-Following MIME types are supported in the Accept header: text/html, application/rdf+xml, text/turtle.
-Support to other mimetype  like application/x-turtle, text/x-nquads OR application/ld+json 
-is experimental.
 
 You can use *_output=mimetype* parameter in any URL to override http content negotiation 
 and forcing your preferred resource representation. 
@@ -261,7 +258,7 @@ The file contents replace current configuration.
 ### Empty the configuration [DELETE]
 
 This API delete knowledge base configuration. It is equivalent to a call to
-*sparql?query=DROP SILENT ALL* 
+*sparql/update* with command: DROP SILENT ALL 
 
 + Response 200
 
@@ -316,7 +313,6 @@ This request forces internal caches to be revalidated.
 
 This end point implements [SPARQL 1.1 protocol query operations](http://www.w3.org/TR/sparql11-protocol/#query-operation) 
 for [query](http://www.w3.org/TR/sparql11-query/) and [update](http://www.w3.org/TR/sparql11-update/) language specifications.
-It also supports [Service Description](http://www.w3.org/TR/sparql11-service-description/) specification.
 
 SPARQL query APIs support [http content negotiation](http://en.wikipedia.org/wiki/Content_negotiation) for state representation rendering.
 
@@ -331,9 +327,6 @@ Depending from SPARQL query, following MIME types are recognized in the Accept h
 | ASK        | application/sparql-results+xml OR text/boolean                                                                                       |
 | CONSTRUCT or DESCRIBE | application/rdf+xml OR text/turtle OR application/x-turtle OR text/x-nquads OR application/ld+json |
 | any sparql update query |application/sparql-results+xml OR text/boolean (requires cache=clear option) |
-
-If no query parameter is supplied it returns 
-[end-point service Description](http://www.w3.org/TR/sparql11-service-description/) in one of available RDF serialization.
 
 
 **Protection from inconsistent data**
@@ -358,7 +351,6 @@ This force cache to revalidate after the execution of your statements. Please no
 
 + Parameters
     + kb (required, string, `demo`) ... `id` of the Knowlege base  
-    + query (optional, string, `SELECT%20*%20WHERE%20%7B%3Fs%20%3Fp%20%3Fo%7D`) ... url encoded sparql query.
 
 
 + Model (application/sparql-results+xml)
@@ -380,8 +372,15 @@ This force cache to revalidate after the execution of your statements. Please no
 
 ### SPARQL query via get [GET]
 
+This verbs supports both Sparql Query protocol via query string.
+It also supports [Service Description](http://www.w3.org/TR/sparql11-service-description/) specification 
+if no query parameter is supplied it returns 
+[end-point service Description](http://www.w3.org/TR/sparql11-service-description/) in one of available RDF serialization.
 
-+ Request (application/x-www-form-urlencoded)
++ Parameters
+    + query (optional, string, `SELECT%20*%20WHERE%20%7B%3Fs%20%3Fp%20%3Fo%7D`) ... url encoded sparql query.
+
++ Request
 
     + Headers
     
@@ -396,8 +395,12 @@ This force cache to revalidate after the execution of your statements. Please no
 ### SPARQL query via post [POST]
 Post action can be used for queries whose length exceeds the maximum allowed number of characters in a URI.
 The body of the request should be same form-encoded parameters of the GET variant.
+It supports both application/x-www-form-urlencoded using query paramether and unencoded paylout
+if Content-Type header is "application/sparql-query"
 
-+ Request (application/x-www-form-urlencoded)
+
+
++ Request (application/sparql-query)
 
     + Headers
     
@@ -405,7 +408,9 @@ The body of the request should be same form-encoded parameters of the GET varian
 
     + Body
 
-            query=SELECT%20*%20WHERE%20%7B%3Fs%20%3Fp%20%3Fo%7D
+            SELECT * WHERE {
+                ?s ?p ?o
+            }
             
 + Response 200
 
