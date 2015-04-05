@@ -221,7 +221,7 @@ Returns the current knowledge base config.
 
 ### Override current configuration [PUT]
 
-Substitute the knowledge base configuration with the request bosy content.
+Substitutes the knowledge base configuration with the request body content.
 
 + Request (text/turtle)
             
@@ -361,7 +361,7 @@ In these cases, any access to the endpoint receives a 503 error (Service Unavail
 
 ### SPARQL query via get [GET]
 
-This verbs supports both Sparql Query protocol via query string.
+This verb supports both Sparql Query protocol via query string.
 It also supports [Service Description](http://www.w3.org/TR/sparql11-service-description/) specification 
 when no query parameter is supplied.
 
@@ -436,9 +436,9 @@ This verbs supports [Service Description](http://www.w3.org/TR/sparql11-service-
             
 + Response 200
 
-            :node19hbsroj2x221 a <http://www.w3.org/ns/sparql-service-description#Service> ;
-                <http://www.w3.org/ns/sparql-service-description#endpoint> "https://hub1.linkeddata.center/test/query/update" ;
-                <http://www.w3.org/ns/sparql-service-description#supportedLanguage> <http://www.w3.org/ns/sparql-service-description#SPARQL11update> ;
+            _:node19hbsroj2x226 a <http://www.w3.org/ns/sparql-service-description#Service> ;
+                <http://www.w3.org/ns/sparql-service-description#endpoint> "https://hub1.linkeddata.center/test/sparql/update" ;
+                <http://www.w3.org/ns/sparql-service-description#supportedLanguage> <http://www.w3.org/ns/sparql-service-description#SPARQL11Update> ;
                 <http://www.w3.org/ns/sparql-service-description#defaultEntailmentRegime> <http://www.w3.org/ns/entailment/OWL-Direct> ;
                 <http://www.w3.org/ns/sparql-service-description#supportedEntailmentProfile> <http://www.w3.org/ns/owl-profile/RDFS> , <http://www.w3.org/ns/owl-profile/QL> , <http://www.w3.org/ns/owl-profile/RL> , <http://www.w3.org/ns/owl-profile/EL> , <http://www.w3.org/ns/owl-profile/DL> ;
                 <http://www.w3.org/ns/sparql-service-description#inputFormat> <http://www.w3.org/ns/formats/RDF_XML> ;
@@ -458,29 +458,21 @@ This verbs supports [Service Description](http://www.w3.org/TR/sparql11-service-
                 <http://www.w3.org/ns/sparql-service-description#inputFormat> <http://www.w3.org/ns/formats/JSON_LD> ;
                 <http://www.w3.org/ns/sparql-service-description#resultFormat> <http://www.w3.org/ns/formats/JSON_LD> , <http://www.w3.org/ns/formats/SPARQL_Results_XML> , <http://www.w3.org/ns/formats/SPARQL_Results_JSON> , <http://www.w3.org/ns/formats/SPARQL_Results_CSV> , <http://www.w3.org/ns/formats/SPARQL_Results_TSV> ;
                 <http://www.w3.org/ns/sparql-service-description#extensionFunction> <http://jena.hpl.hp.com/ARQ/property#textMatch> ;
-
             
-            _:node19hbsroj2x222 a <http://www.w3.org/ns/sparql-service-description#Dataset> .
+            _:node19hbsroj2x227 a <http://www.w3.org/ns/sparql-service-description#Dataset> .
             
-            _:node19hbsroj2x223 a <http://www.w3.org/ns/sparql-service-description#Graph> ;
+            _:node19hbsroj2x228 a <http://www.w3.org/ns/sparql-service-description#Graph> ;
                 <http://rdfs.org/ns/void#triples> "0"^^<http://www.w3.org/2001/XMLSchema#long> .
             
-            _:node19hbsroj2x222 <http://www.w3.org/ns/sparql-service-description#defaultGraph> _:node19hbsroj2x223 .
+            _:node19hbsroj2x227 <http://www.w3.org/ns/sparql-service-description#defaultGraph> _:node19hbsroj2x228 .
             
-            _:node19hbsroj2x224 a <http://www.w3.org/ns/sparql-service-description#Graph> ;
+            _:node19hbsroj2x229 a <http://www.w3.org/ns/sparql-service-description#Graph> ;
                 <http://www.w3.org/ns/sparql-service-description#name> <urn:kees> ;
-                <http://rdfs.org/ns/void#triples> "7"^^<http://www.w3.org/2001/XMLSchema#long> .
-            
-            _:node19hbsroj2x222 <http://www.w3.org/ns/sparql-service-description#namedGraph> _:node19hbsroj2x224 .
-            
-            _:node19hbsroj2x225 a <http://www.w3.org/ns/sparql-service-description#Graph> ;
-                <http://www.w3.org/ns/sparql-service-description#name> <urn:g1> ;
                 <http://rdfs.org/ns/void#triples> "0"^^<http://www.w3.org/2001/XMLSchema#long> .
             
-            _:node19hbsroj2x222 <http://www.w3.org/ns/sparql-service-description#namedGraph> _:node19hbsroj2x225 .
+            _:node19hbsroj2x227 <http://www.w3.org/ns/sparql-service-description#namedGraph> _:node19hbsroj2x229 .
             
-            _:node19hbsroj2x221 <http://www.w3.org/ns/sparql-service-description#defaultDataset> _:node19hbsroj2x222 .
-
+            _:node19hbsroj2x226 <http://www.w3.org/ns/sparql-service-description#defaultDataset> _:node19hbsroj2x227 .
 
 
 ### SPARQL update via post [POST]
