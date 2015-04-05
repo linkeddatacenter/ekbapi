@@ -510,20 +510,21 @@ It supports also unencoded paylout when  Content-Type header is set to "applicat
 
 ## Tasks API [/{kb}/tasks{?status,type}]
 
-Populate the knowledge base drivinig a KEES Booting, Learning and Reasoning windows. 
+This endpoint allows to populate the knowledge base by driving all four KEES windows 
+(Booting, Learning and Reasoning) . 
 
 Tasks are executed asyncronusly as soon as there  are enough resources available in the system.
 
 Each task is provided with an unique id in the knowledge base. 
 The task state can be inspected before, after and during execution.
-Tasks information is stored in <urn:kees> named graph.
+Tasks information is stored in <urn:kees:activities> named graph.
+By default, task reports are retained for one day before to be purged.
 
 + Authorization ... [Base64](http://en.wikipedia.org/wiki/Base64) encoded string literal in form _"username:password"_ preceeded by authorization method and its space.
 
 
 ### List task [GET]
-Lists tasks (pending, running and complete). By default, completed tasks are retained 
-for one day before to be purged.
+Lists tasks (pending, running and complete). 
 
 + Parameters
     + status (optional, string, `running`) ... show only task in a defined status.
