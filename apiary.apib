@@ -5,11 +5,9 @@ FORMAT: 1A
 
 ## Overview
 
-eKB is a set of RESTful APIs designed by [e-Artspace](http://www.e-artspace.com) to popolate and
-query any knowledge base compliant with the [W3C RDF standard](http://www.w3.org/TR/rdf11-primer/) 
+eKB is a set of RESTful APIs designed by [LinkedData.Center](LinkedData.Center) to populate and
+query a knowledge base compliant with the [W3C RDF standard](http://www.w3.org/TR/rdf11-primer/) 
 and with the [Knowledge Exchange Engine Service (KEES) architecture](http://www.e-artspace.com/home/project/kees).
-
-eKB APIs are part of all [LinkedData.Center services](LinkedData.Center).
 
 
 | Resource              | GET | PUT | POST | DELETE |
@@ -65,8 +63,12 @@ All appliable rules are executed during the KEES Reasoning windows.
 
 All ABox statemenst lives in named graphs.
 
-The uri of the knowlege base configuration MUST BE *urn:kees:kb* and all knowlege base metadata 
-(such is configuration info) is stored in *urn:kees* named graph.
+All knowlege base metadata is stored in *urn:kees* named graph.
+
+All inferred triples are stored in *urn:kees:reasoning* named graph.
+
+All information about learning and reasoning tasks are stored in 
+*urn:kees:actvities* named graph.
 
 
 A minimal KB configuration is like:
@@ -144,9 +146,6 @@ To access eKB APIs you always need to provide your LinkedData.Center credentials
 All eKB APIs supports [http content negotiation](http://en.wikipedia.org/wiki/Content_negotiation) 
 for state representation rendering.
 
-You can use *_output=mimetype* parameter in any URL to override http content negotiation 
-and forcing your preferred resource representation. 
-
 ## Server Responses
 
 Following table sumarize typical http status code returned by APIS
@@ -181,6 +180,15 @@ Here is an example of a 404 error in json representation:
         }
 
 
+## Protection from inconsistent data
+
+The knowledge base may be in a state temporarily inconsistent during the phases 
+of acquisition of new data (learning window) or during the steps of the inference
+computation (reasoning window).
+During these temporary windows, the result of the query to the knowledge base may be incorrect.
+
+The endpoint is protected by a guard that prevents query during learning and reasoning windows. 
+In these cases, any access to the endpoint receives a 503 error (Service Unavailable). 
 
 
 ## Knowledge base configuration API [/{kb}]
@@ -249,18 +257,18 @@ The file contents replace current configuration.
 + Parameters
     + kb (required, string, `demo`) ... `id` of the Knowlege base  
             
-+ Response 200
++ Response 200 (text/boolean)
 
     + Body
     
-            New configuration uploaded.
+            true
             
 ### Empty the configuration [DELETE]
 
 This API delete knowledge base configuration. It is equivalent to a call to
 *sparql/update* with command: DROP SILENT ALL 
 
-+ Response 200
++ Response 200 (text/boolean)
 
     + Body
     
@@ -278,7 +286,7 @@ Returns the current knowledge base version id. The version id is an unixtime sta
 relatetd to the last knowlege base update action.
 
             
-+ Response 200
++ Response 200 (text/plain)
 
 
     + Body
@@ -312,30 +320,21 @@ This request forces internal caches to be revalidated.
 ## SPARQL Query [/{kb}/sparql{?query}]
 
 This end point implements [SPARQL 1.1 protocol query operations](http://www.w3.org/TR/sparql11-protocol/#query-operation) 
-for [query](http://www.w3.org/TR/sparql11-query/) language specifications.
+for [query language](http://www.w3.org/TR/sparql11-query/) specifications.
 
-SPARQL query APIs support [http content negotiation](http://en.wikipedia.org/wiki/Content_negotiation) for state representation rendering.
+Fully supports [http content negotiation](http://en.wikipedia.org/wiki/Content_negotiation)
+for state representation rendering.
 
 All HTTP requests that are mutative (add or remove) must include a valid Content-Type header set to the MIME type of the request body,
  where “valid” is a valid MIME type for N-Triples(text/plain), Turtle (application/x-turtle or text/turtle), NQuads (text/x-nquads), JSON-LD(application/ld+json), or RDF/XML (application/rdf+xml).
  
-Depending from SPARQL query, following MIME types are recognized in the Accept header:
+Depending from SPARQL query, following MIME types are recognized in the Accept header, for example:
 
 | Query type | Supported MIMETYPE in Accept header                                                                |
 |------------|----------------------------------------------------------------------------------------------------|
 | SELECT     | application/sparql-results+xml OR application/sparql-results+json                                  |
 | ASK        | application/sparql-results+xml OR text/boolean                                                                                       |
 | CONSTRUCT or DESCRIBE | application/rdf+xml OR text/turtle OR application/x-turtle OR text/x-nquads OR application/ld+json |
-
-
-**Protection from inconsistent data**
-
-The knowledge base may be in a state temporarily inconsistent during the phases 
-of acquisition of new data (learning window) or during the steps of the inference computation (reasoning window).
-During these temporary windows, the result of the query to the knowledge base may be incorrect.
-
-The endpoint is protected by a guard that prevents query during learning and reasoning windows. 
-In these cases, any access to the endpoint receives a 503 error (Service Unavailable). 
 
 
 + Parameters
@@ -361,9 +360,10 @@ In these cases, any access to the endpoint receives a 503 error (Service Unavail
 
 ### SPARQL query via get [GET]
 
-This verb supports both Sparql Query protocol via query string.
-It also supports [Service Description](http://www.w3.org/TR/sparql11-service-description/) specification 
-when no query parameter is supplied.
+It supports both Sparql Query and 
+[Service Description](http://www.w3.org/TR/sparql11-service-description/) protocols.
+
+To get Service description call the end-point withouth any paramethers
 
 + Parameters
     + query (optional, string, `SELECT%20*%20WHERE%20%7B%3Fs%20%3Fp%20%3Fo%7D`) ... url encoded sparql query.
@@ -409,19 +409,17 @@ It supports also unencoded paylout when  Content-Type header is set to "applicat
 ## SPARQL Update [/{kb}/sparql/update]
 
 This end point implements [SPARQL 1.1 protocol update operations](http://www.w3.org/TR/sparql11-protocol/#update-operation) 
-for [update](http://www.w3.org/TR/sparql11-update/) language specifications.
+for [update language](http://www.w3.org/TR/sparql11-update/) specifications.
 
 SPARQL update endpoint support [http content negotiation](http://en.wikipedia.org/wiki/Content_negotiation) for state representation rendering.
 
 All HTTP requests that are mutative (add or remove) must include a valid Content-Type header set to the MIME type of the request body,
  where “valid” is a valid MIME type for application/sparql-results+xml OR text/boolean .
 
-Also Sparql update end point is protected during learning operations 
 
 
 + Parameters
     + kb (required, string, `demo`) ... `id` of the Knowlege base  
-
 
 
 ### SPARQL update via get [GET]
