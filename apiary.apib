@@ -374,8 +374,7 @@ This force cache to revalidate after the execution of your statements. Please no
 
 This verbs supports both Sparql Query protocol via query string.
 It also supports [Service Description](http://www.w3.org/TR/sparql11-service-description/) specification 
-if no query parameter is supplied it returns 
-[end-point service Description](http://www.w3.org/TR/sparql11-service-description/) in one of available RDF serialization.
+when no query parameter is supplied.
 
 + Parameters
     + query (optional, string, `SELECT%20*%20WHERE%20%7B%3Fs%20%3Fp%20%3Fo%7D`) ... url encoded sparql query.
@@ -395,8 +394,8 @@ if no query parameter is supplied it returns
 ### SPARQL query via post [POST]
 Post action can be used for queries whose length exceeds the maximum allowed number of characters in a URI.
 The body of the request should be same form-encoded parameters of the GET variant.
-It supports both application/x-www-form-urlencoded using query paramether and unencoded paylout
-if Content-Type header is "application/sparql-query"
+
+It supports also unencoded paylout when  Content-Type header is set to "application/sparql-query"
 
 
 
