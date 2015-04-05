@@ -312,7 +312,7 @@ This request forces internal caches to be revalidated.
 ## SPARQL Query [/{kb}/sparql{?query}]
 
 This end point implements [SPARQL 1.1 protocol query operations](http://www.w3.org/TR/sparql11-protocol/#query-operation) 
-for [query](http://www.w3.org/TR/sparql11-query/) and [update](http://www.w3.org/TR/sparql11-update/) language specifications.
+for [query](http://www.w3.org/TR/sparql11-query/) language specifications.
 
 SPARQL query APIs support [http content negotiation](http://en.wikipedia.org/wiki/Content_negotiation) for state representation rendering.
 
@@ -326,7 +326,6 @@ Depending from SPARQL query, following MIME types are recognized in the Accept h
 | SELECT     | application/sparql-results+xml OR application/sparql-results+json                                  |
 | ASK        | application/sparql-results+xml OR text/boolean                                                                                       |
 | CONSTRUCT or DESCRIBE | application/rdf+xml OR text/turtle OR application/x-turtle OR text/x-nquads OR application/ld+json |
-| any sparql update query |application/sparql-results+xml OR text/boolean (requires cache=clear option) |
 
 
 **Protection from inconsistent data**
@@ -337,16 +336,6 @@ During these temporary windows, the result of the query to the knowledge base ma
 
 The endpoint is protected by a guard that prevents query during learning and reasoning windows. 
 In these cases, any access to the endpoint receives a 503 error (Service Unavailable). 
-
-**Transparent cache management**
-
-eKB APIs cache partial query results in a very efficent and transparente way. This because we manage data ingestion through
-KEES learning and reasoning window (see "task" API).
-
-You are still able to manually submit a sparql update query but in this way you colud break the cache integrity. 
-In order to protect you from this case, sparql end point accepts only safe sparql queries statements (select,cosntruct, ask and describe). 
-If you want to manually submit a sparql update query (i.e. LOAD) you must add the optional paramether cache=clear. 
-This force cache to revalidate after the execution of your statements. Please note that a using cache=clear can be slower and costly.
 
 
 + Parameters
@@ -417,6 +406,118 @@ It supports also unencoded paylout when  Content-Type header is set to "applicat
 
 
 
+## SPARQL Update [/{kb}/sparql/update]
+
+This end point implements [SPARQL 1.1 protocol update operations](http://www.w3.org/TR/sparql11-protocol/#update-operation) 
+for [update](http://www.w3.org/TR/sparql11-update/) language specifications.
+
+SPARQL update endpoint support [http content negotiation](http://en.wikipedia.org/wiki/Content_negotiation) for state representation rendering.
+
+All HTTP requests that are mutative (add or remove) must include a valid Content-Type header set to the MIME type of the request body,
+ where “valid” is a valid MIME type for application/sparql-results+xml OR text/boolean .
+
+Also Sparql update end point is protected during learning operations 
+
+
++ Parameters
+    + kb (required, string, `demo`) ... `id` of the Knowlege base  
+
+
+
+### SPARQL update via get [GET]
+
+This verbs supports [Service Description](http://www.w3.org/TR/sparql11-service-description/) specification.
+
++ Request
+
+    + Headers
+    
+            Accept: text/turtle
+            
++ Response 200
+
+            :node19hbsroj2x221 a <http://www.w3.org/ns/sparql-service-description#Service> ;
+                <http://www.w3.org/ns/sparql-service-description#endpoint> "https://hub1.linkeddata.center/test/query/update" ;
+                <http://www.w3.org/ns/sparql-service-description#supportedLanguage> <http://www.w3.org/ns/sparql-service-description#SPARQL11update> ;
+                <http://www.w3.org/ns/sparql-service-description#defaultEntailmentRegime> <http://www.w3.org/ns/entailment/OWL-Direct> ;
+                <http://www.w3.org/ns/sparql-service-description#supportedEntailmentProfile> <http://www.w3.org/ns/owl-profile/RDFS> , <http://www.w3.org/ns/owl-profile/QL> , <http://www.w3.org/ns/owl-profile/RL> , <http://www.w3.org/ns/owl-profile/EL> , <http://www.w3.org/ns/owl-profile/DL> ;
+                <http://www.w3.org/ns/sparql-service-description#inputFormat> <http://www.w3.org/ns/formats/RDF_XML> ;
+                <http://www.w3.org/ns/sparql-service-description#resultFormat> <http://www.w3.org/ns/formats/RDF_XML> ;
+                <http://www.w3.org/ns/sparql-service-description#inputFormat> <http://www.w3.org/ns/formats/Turtle> ;
+                <http://www.w3.org/ns/sparql-service-description#resultFormat> <http://www.w3.org/ns/formats/Turtle> ;
+                <http://www.w3.org/ns/sparql-service-description#inputFormat> <http://www.w3.org/ns/formats/N3> ;
+                <http://www.w3.org/ns/sparql-service-description#resultFormat> <http://www.w3.org/ns/formats/N3> ;
+                <http://www.w3.org/ns/sparql-service-description#inputFormat> <http://www.w3.org/ns/formats/N_Triples> ;
+                <http://www.w3.org/ns/sparql-service-description#resultFormat> <http://www.w3.org/ns/formats/N_Triples> ;
+                <http://www.w3.org/ns/sparql-service-description#inputFormat> <http://www.w3.org/ns/formats/NQuads> ;
+                <http://www.w3.org/ns/sparql-service-description#resultFormat> <http://www.w3.org/ns/formats/NQuads> ;
+                <http://www.w3.org/ns/sparql-service-description#inputFormat> <http://www.w3.org/ns/formats/Trig> ;
+                <http://www.w3.org/ns/sparql-service-description#resultFormat> <http://www.w3.org/ns/formats/Trig> ;
+                <http://www.w3.org/ns/sparql-service-description#inputFormat> <http://www.w3.org/ns/formats/Trix> ;
+                <http://www.w3.org/ns/sparql-service-description#resultFormat> <http://www.w3.org/ns/formats/Trix> ;
+                <http://www.w3.org/ns/sparql-service-description#inputFormat> <http://www.w3.org/ns/formats/JSON_LD> ;
+                <http://www.w3.org/ns/sparql-service-description#resultFormat> <http://www.w3.org/ns/formats/JSON_LD> , <http://www.w3.org/ns/formats/SPARQL_Results_XML> , <http://www.w3.org/ns/formats/SPARQL_Results_JSON> , <http://www.w3.org/ns/formats/SPARQL_Results_CSV> , <http://www.w3.org/ns/formats/SPARQL_Results_TSV> ;
+                <http://www.w3.org/ns/sparql-service-description#extensionFunction> <http://jena.hpl.hp.com/ARQ/property#textMatch> ;
+
+            
+            _:node19hbsroj2x222 a <http://www.w3.org/ns/sparql-service-description#Dataset> .
+            
+            _:node19hbsroj2x223 a <http://www.w3.org/ns/sparql-service-description#Graph> ;
+                <http://rdfs.org/ns/void#triples> "0"^^<http://www.w3.org/2001/XMLSchema#long> .
+            
+            _:node19hbsroj2x222 <http://www.w3.org/ns/sparql-service-description#defaultGraph> _:node19hbsroj2x223 .
+            
+            _:node19hbsroj2x224 a <http://www.w3.org/ns/sparql-service-description#Graph> ;
+                <http://www.w3.org/ns/sparql-service-description#name> <urn:kees> ;
+                <http://rdfs.org/ns/void#triples> "7"^^<http://www.w3.org/2001/XMLSchema#long> .
+            
+            _:node19hbsroj2x222 <http://www.w3.org/ns/sparql-service-description#namedGraph> _:node19hbsroj2x224 .
+            
+            _:node19hbsroj2x225 a <http://www.w3.org/ns/sparql-service-description#Graph> ;
+                <http://www.w3.org/ns/sparql-service-description#name> <urn:g1> ;
+                <http://rdfs.org/ns/void#triples> "0"^^<http://www.w3.org/2001/XMLSchema#long> .
+            
+            _:node19hbsroj2x222 <http://www.w3.org/ns/sparql-service-description#namedGraph> _:node19hbsroj2x225 .
+            
+            _:node19hbsroj2x221 <http://www.w3.org/ns/sparql-service-description#defaultDataset> _:node19hbsroj2x222 .
+
+
+
+### SPARQL update via post [POST]
+The body of the request should be same form-encoded parameters of the GET variant.
+
+It supports also unencoded paylout when  Content-Type header is set to "application/sparql-update"
+
++ Parameters
+    + update (optional, string, `DROP%20ALL`) ... url encoded sparql query.
+
+
+
++ Request (application/sparql-update)
+
+    + Headers
+    
+            Accept: application/sparql-results+xml
+
+    + Body
+
+            DROP ALL
+            
++ Response 200
+
+    See [SPARQL Query Results XML Format](http://www.w3.org/TR/rdf-sparql-XMLres/) for more info.
+            
+    + Body
+
+            <?xml version='1.0' encoding='UTF-8'?>
+            <sparql xmlns='http://www.w3.org/2005/sparql-results#'>
+                <head>
+                </head>
+                <boolean>true</boolean>
+            </sparql>
+
+
+
 ## Tasks API [/{kb}/tasks{?status,type}]
 
 Populate the knowledge base drivinig a KEES Booting, Learning and Reasoning windows. 
@@ -428,9 +529,6 @@ The task state can be inspected before, after and during execution.
 Tasks information is stored in <urn:kees> named graph.
 
 + Authorization ... [Base64](http://en.wikipedia.org/wiki/Base64) encoded string literal in form _"username:password"_ preceeded by authorization method and its space.
-
-+ Parameters
-    + kb (required, string, `demo`) ... `id` of the Knowlege base  
 
 
 ### List task [GET]
