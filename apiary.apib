@@ -485,10 +485,6 @@ It supports also unencoded paylout when  Content-Type header is set to "applicat
 
 + Request (application/sparql-update)
 
-    + Headers
-    
-            Accept: application/sparql-results+xml
-
     + Body
 
             DROP ALL
@@ -551,14 +547,9 @@ Lists tasks (pending, running and complete).
 
     + Headers
         
-            Accept: text/turtle
+            Accept: Application/json
  
-+ Response 200
-
-
-    + Headers
-        
-            Content-type: text/turtle
++ Response 200 (text/turtle)
             
     + Body
     
@@ -589,7 +580,7 @@ Accepts following x-www-form-urlencoded vars:
 
             booting=false&learning=true&reasoning=true
         
-+ Response 200 (application/json)
++ Response 200
 
     + Headers
         
@@ -597,7 +588,7 @@ Accepts following x-www-form-urlencoded vars:
             
     + Body
     
-            Tasks submitted
+            true
 
 ### Delete pending tasks [DELETE]
 Deletes all pending tasks.
@@ -605,7 +596,7 @@ Deletes all pending tasks.
             
 + Response 200
 
-        All pending tasks deleted
+        true
 
 
 
