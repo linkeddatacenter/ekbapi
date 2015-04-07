@@ -12,12 +12,12 @@ and with the [Knowledge Exchange Engine Service (KEES) architecture](http://www.
 
 | Resource              | GET | PUT | POST | DELETE | Service Description |
 |-----------------------|-----|-----|------|--------|-------------|
-| /{kb}                 | X   | X   | X    | X      | Knowledge base configuration |
+| /{kb}                 | X   | X   |      | X      | Knowledge base configuration |
 | /{kb}/version         | X   | X   |      |        | Knowledge base version management |
 | /{kb}/sparql          | X   |     | X    |        | Sparql 1.1 Query endpoint | 
 | /{kb}/sparql/update   | X   |     | X    |        | Sparql 1.1 Update endpoint |
 | /{kb}/activities      | X   |     | X    | X      | data ingestion planning and monitoring |
-| /{kb}/activity{id}    | X   |     |      | X      | data ingestion task |
+| /{kb}/activity/{id}   | X   |     |      | X      | data ingestion task |
 | /{kb}/user/{user}/pwd |     | X   |      |        | user password management |
 
 ## The knowledge base
@@ -228,7 +228,7 @@ Returns the current knowledge base config.
 
 
 
-### Override current configuration [PUT]
+### Change current configuration [PUT]
 
 Substitutes the knowledge base configuration with the request body content.
 
@@ -246,23 +246,8 @@ Substitutes the knowledge base configuration with the request body content.
 
     + Body
     
-            Knowledge base configuration updated.
-
-
-
-### Upload a new configuration [POST]
-
-This API allows you to upload a RDF file containing a knowledge base configuration.
-The file contents replace current configuration.
-
-+ Parameters
-    + kb (required, string, `demo`) ... `id` of the Knowlege base  
-            
-+ Response 200 (text/boolean)
-
-    + Body
-    
             true
+
             
 ### Empty the configuration [DELETE]
 
