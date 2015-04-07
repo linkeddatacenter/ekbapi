@@ -490,7 +490,7 @@ It supports also unencoded paylout when  Content-Type header is set to "applicat
 
 
 
-## Data ingestion planning and monitoring [/{kb}/activities{?status,type}]
+## Data ingestion planning and monitoring [/{kb}/activities{?filter}]
 
 This endpoint allows to populate the knowledge base by driving all four KEES windows 
 (Booting, Learning and Reasoning) . 
@@ -509,14 +509,13 @@ By default, task reports are retained for one day before to be purged.
 Lists tasks (pending, running and complete). 
 
 + Parameters
-    + status (optional, string, `running`) ... show only task in a defined status.
+    + filter (optional, string, `running`) ... show only task in a defined status.
     
         + Values
             + `all`
             + `pending`
             + `running`
             + `complete`
-            + `lastcomplete`
             + `tobepurged`
 
 
