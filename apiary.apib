@@ -545,20 +545,17 @@ Accepts following x-www-form-urlencoded vars:
             booting=false&learning=true&reasoning=true
         
 + Response 200
-
-    + Headers
-        
-            Link: <tasks?status=pending>; rel="pending"
             
     + Body
     
             true
 
 ### Delete data ingestion activities [DELETE]
+
 Deletes all pending tasks. With no parameters delete activities that have to be purged. 
 
 + Parameters
-    + status (optional, string, `tobepurged`) ... delete only task in a defined status.
+    + filter (optional, string, `tobepurged`) ... delete only task in a defined status.
     
         + Values
             + `all`
@@ -574,7 +571,7 @@ Deletes all pending tasks. With no parameters delete activities that have to be 
         true
 
 
-## Data ingestion task [/{kb}/activity/{activityId}]
+## Data ingestion activity [/{kb}/activity/{activityId}]
 
 Shows or delete a specific activity . 
 
