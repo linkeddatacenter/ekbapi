@@ -10,14 +10,15 @@ query a knowledge base compliant with the [W3C RDF standard](http://www.w3.org/T
 and with the [Knowledge Exchange Engine Service (KEES) architecture](http://www.e-artspace.com/home/project/kees).
 
 
-| Resource              | GET | PUT | POST | DELETE |
-|-----------------------|-----|-----|------|--------|
-| /{kb}                 | X   | X   | X    | X      |
-| /{kb}/version         | X   | X   |      |        |
-| /{kb}/sparql          | X   |     | X    |        |
-| /{kb}/sparql/update   | X   |     | X    |        |
-| /{kb}/tasks           | X   |     | X    | X      |
-| /{kb}/user/{user}/pwd |     | X   |      |        |
+| Resource              | GET | PUT | POST | DELETE | Service Description |
+|-----------------------|-----|-----|------|--------|-------------|
+| /{kb}                 | X   | X   | X    | X      | Knowledge base configuration |
+| /{kb}/version         | X   | X   |      |        | Knowledge base version management |
+| /{kb}/sparql          | X   |     | X    |        | Sparql 1.1 Query endpoint | 
+| /{kb}/sparql/update   | X   |     | X    |        | Sparql 1.1 Update endpoint |
+| /{kb}/activities      | X   |     | X    | X      | data ingestion planning and monitoring |
+| /{kb}/activity{id}    | X   |     |      | X      | data ingestion task |
+| /{kb}/user/{user}/pwd |     | X   |      |        | user password management |
 
 ## The knowledge base
 eKB implements a semantic system where infomation is described as a set of 
@@ -191,7 +192,7 @@ The endpoint is protected by a guard that prevents query during learning and rea
 In these cases, any access to the endpoint receives a 503 error (Service Unavailable). 
 
 
-## Knowledge base configuration API [/{kb}]
+## Knowledge base configuration [/{kb}]
 
 + Parameters
     + kb (required, string, `demo`) ... `id` of the Knowlege base  
@@ -317,7 +318,7 @@ This request forces internal caches to be revalidated.
 
             
 
-## SPARQL Query [/{kb}/sparql{?query}]
+## SPARQL 1.1 Query endpoint [/{kb}/sparql{?query}]
 
 This end point implements [SPARQL 1.1 protocol query operations](http://www.w3.org/TR/sparql11-protocol/#query-operation) 
 for [query language](http://www.w3.org/TR/sparql11-query/) specifications.
@@ -376,7 +377,7 @@ To get Service description call the end-point withouth any paramethers
             
 + Response 200
 
-    [SPARQL Query][]
+    [SPARQL 1.1 Query endpoint][]
 
 
 
@@ -402,11 +403,11 @@ It supports also unencoded paylout when  Content-Type header is set to "applicat
             
 + Response 200
 
-    [SPARQL Query][]
+    [SPARQL 1.1 Query endpoint][]
 
 
 
-## SPARQL Update [/{kb}/sparql/update]
+## SPARQL 1.1 Update endpoint [/{kb}/sparql/update]
 
 This end point implements [SPARQL 1.1 protocol update operations](http://www.w3.org/TR/sparql11-protocol/#update-operation) 
 for [update language](http://www.w3.org/TR/sparql11-update/) specifications.
@@ -504,7 +505,7 @@ It supports also unencoded paylout when  Content-Type header is set to "applicat
 
 
 
-## Tasks API [/{kb}/tasks{?status,type}]
+## Data ingestion planning and monitoring [/{kb}/activities{?status,type}]
 
 This endpoint allows to populate the knowledge base by driving all four KEES windows 
 (Booting, Learning and Reasoning) . 
@@ -519,7 +520,7 @@ By default, task reports are retained for one day before to be purged.
 + Authorization ... [Base64](http://en.wikipedia.org/wiki/Base64) encoded string literal in form _"username:password"_ preceeded by authorization method and its space.
 
 
-### List tasks [GET]
+### List activities [GET]
 Lists tasks (pending, running and complete). 
 
 + Parameters
@@ -534,36 +535,15 @@ Lists tasks (pending, running and complete).
             + `tobepurged`
 
 
-    + type (optional, string, `all`) ... block access during learning.
 
-        + Values
-            + `all`
-            + `booting`
-            + `learning`
-            + `reasoning`
-
-
-+ Request
-
-    + Headers
-        
-            Accept: Application/json
- 
-+ Response 200 (text/turtle)
++ Response 200 (Application/json)
             
     + Body
     
-            <urn:kees:task:xxx> a kees:LearningTask;
-                dcterms:identifier "xxx" ;
-                dcterms:dateSubmitted "......"^xsd:datetime ;
-            .
-            <urn:kees:task:yyy> a kees:ReasoningTask;
-                dcterms:identifier "yyy" ;
-                dcterms:dateSubmitted "......"^xsd:datetime ;
-            .
+            {"TBD"}
 
 
-### Start a KEES cycle task [POST]
+### Start a KEES cycle activity [POST]
 Ask for a new kees cicle to be executed as soon as possible.
 
 Accepts following x-www-form-urlencoded vars:
@@ -590,13 +570,52 @@ Accepts following x-www-form-urlencoded vars:
     
             true
 
-### Delete pending tasks [DELETE]
-Deletes all pending tasks.
+### Delete data ingestion activities [DELETE]
+Deletes all pending tasks. With no parameters delete activities that have to be purged. 
+
++ Parameters
+    + status (optional, string, `tobepurged`) ... delete only task in a defined status.
+    
+        + Values
+            + `all`
+            + `pending`
+            + `running`
+            + `complete`
+            + `tobepurged`
+
 
             
 + Response 200
 
         true
+
+
+## Data ingestion task [/{kb}/activity/{activityId}]
+
+Shows or delete a specific activity . 
+
++ Authorization ... [Base64](http://en.wikipedia.org/wiki/Base64) encoded string literal in form _"username:password"_ preceeded by authorization method and its space.
+
+
+### Show activity [GET]
+Lists tasks (pending, running and complete). 
+
+
++ Response 200 (text/turtle)
+            
+    + Body
+    
+            # TBD
+
+
+### Delete activity [DELETE]
+Deletes the activity. 
+
++ Response 200
+
+        true
+
+
 
 
 
