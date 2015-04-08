@@ -506,7 +506,7 @@ By default, task reports are retained for one day before to be purged.
 
 
 ### List activities [GET]
-Lists tasks (pending, running and complete). 
+Lists tasks with their status (pending, running and complete) and planned tasks. 
 
 + Parameters
     + filter (optional, string, `running`) ... show only task in a defined status.
@@ -524,13 +524,11 @@ Lists tasks (pending, running and complete).
             
     + Body
     
-            +-------------+-----------------+
-            | ?status     | ?activity       |
-            +-------------+-----------------+
-            | "pending"   | "5524d87d905d5" |
-            | "running"   | "5524d87b0672d" |
-            | "completed" | "5524d87858eed" |
-            +-------------+-----------------+
+            +-----------+-----------------+-------------------------+
+            | ?status   | ?activity       | ?plannedTasks           |
+            +-----------+-----------------+-------------------------+
+            | "pending" | "5524e9cd08584" | "learning => reasoning" |
+            +-----------+-----------------+-------------------------+
 
 
 ### Start a KEES cycle activity [POST]
