@@ -506,7 +506,7 @@ By default, task reports are retained for one day before to be purged.
 
 
 ### List activities [GET]
-Lists tasks with their status (pending, running and complete) and planned tasks. 
+Lists tasks with their status (pending, running, complete, etc) and planned tasks. 
 
 + Parameters
     + filter (optional, string, `running`) ... show only task in a defined status.
@@ -516,6 +516,9 @@ Lists tasks with their status (pending, running and complete) and planned tasks.
             + `pending`
             + `running`
             + `completed`
+            + `rejected`
+            + `staled`
+            + `error`
             + `tobepurged`
 
 
