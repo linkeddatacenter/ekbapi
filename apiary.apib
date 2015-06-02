@@ -126,7 +126,9 @@ as linked data in a graph database as a set of named graph:
  - All information about learning and reasoning tasks (i.e. activities) are stored as 
  linked data resources (i.e. in a  graph with name *<your endpoint>/{db}/activity/{id}*)
 
-Please note that **the default graph is not used**.
+Please note that the *defaut graph* behaviour is not specified in sparql 1.1,
+so some RDF storage engine treat it as the union of all named graph, other engines just as an
+unamed graph. To keep maximum compatibility **the default graph is not used by eKB**.
 
 ## Autentication
 
