@@ -45,14 +45,12 @@ In contrast, ABox statements are much more dynamic in nature and they are reload
 during the KEES learning window. A special type of ABox statements are those that are inferred
 during the KEES Reasoning windows evaluating axioms and rules contained into TBox.
 
-## Configuration
-A *Knowledge Base configuration* is a collection of metadata that describe
-TBox or Abox Statements.
+## Knowledge Base Configuration
+A *Knowledge Base Configuration* is a collection of metadata that describe
+TBox or Abox Statements. The [KEES Ontology](http://ontology.it/kees/v1) and
+[VoID ontology](http://www.w3.org/TR/void/) define the vocabularies used to 
+express the knowlege base configuration.
 
-The [KEES Ontology](http://ontology.it/kees/v1) and [VoID ontology](http://www.w3.org/TR/void/)
-define the vocabularies used to express the knowlege base configuration.
-
-TBox resources divide into *Vocabularies* and *Rules*.
 
 A minimal KB configuration is like:
 
@@ -119,14 +117,14 @@ The knowledge base configuration is always automaticallyinitialized with:
 
 ## Storage
 eKB always traks the provenance of each statement storing all information
-as linked data in a graph database as a set of named grah:
+as linked data in a graph database as a set of named graph:
 
  - All knowlege base metadata is stored in *urn:kees* named graph.
  - TBox statemensts are stored in *urn:kees:tbox*named graph.
  - ABox statemensts are stored in named graphs according their provenenance.
  - All inferred triples are stored in *urn:kees:inferences* named graph.
  - All information about learning and reasoning tasks (i.e. activities) are stored as 
- linked data resource (i.e. <your endpoint>/{db}/activity/{id})
+ linked data resources (i.e. in a  graph with name *<your endpoint>/{db}/activity/{id}*)
 
 Please note that **the default graph is not used**.
 
