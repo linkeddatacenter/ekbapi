@@ -39,16 +39,11 @@ ABox statements describe facts about things, using vocabularies defined in Tbox 
 In other words, TBox statements are sometimes associated with object-oriented 
 classes and ABox statements associated with instances of those classes.
 
-eKB manages both TBox and ABox statemenst.
-
 TBox statements tend to be more permanent within a knowledge base and so they are loaded during
 the knowledge base initialization (KEES booting window). 
 In contrast, ABox statements are much more dynamic in nature and they are reloaded (only if changed)
 during the KEES learning window. A special type of ABox statements are those that are inferred
 during the KEES Reasoning windows evaluating axioms and rules contained into TBox.
-
-eKB always traks the provenance of each statement in ABox storing all information
-as linked data in a graph database (quadstore).
 
 ## Configuration
 A *Knowledge Base configuration* is a collection of metadata that describe
@@ -58,19 +53,6 @@ The [KEES Ontology](http://ontology.it/kees/v1) and [VoID ontology](http://www.w
 define the vocabularies used to express the knowlege base configuration.
 
 TBox resources divide into *Vocabularies* and *Rules*.
-
-Both Vocabularies and Rules statements are stored in the default graph of the graph database.
-All appliable rules are executed during the KEES Reasoning windows. 
-
-All ABox statemenst lives in named graphs.
-
-All knowlege base metadata is stored in *urn:kees* named graph.
-
-All inferred triples are stored in *urn:kees:reasoning* named graph.
-
-All information about learning and reasoning tasks are stored in 
-*urn:kees:actvities* named graph.
-
 
 A minimal KB configuration is like:
 
@@ -134,6 +116,19 @@ The knowledge base configuration is always automaticallyinitialized with:
             <http://www.w3.org/ns/formats/N-Triples> ;
         void:sparqlEndpoint <sparql>;
     .
+
+## Storage
+eKB always traks the provenance of each statement storing all information
+as linked data in a graph database as a set of named grah:
+
+ - All knowlege base metadata is stored in *urn:kees* named graph.
+ - TBox statemensts are stored in *urn:kees:tbox*named graph.
+ - ABox statemensts are stored in named graphs according their provenenance.
+ - All inferred triples are stored in *urn:kees:inferences* named graph.
+ - All information about learning and reasoning tasks (i.e. activities) are stored as 
+ linked data resource (i.e. <your endpoint>/{db}/activity/{id})
+
+*The default graph is not used*.
 
 ## Autentication
 
