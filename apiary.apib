@@ -54,6 +54,8 @@ express the knowlege base configuration.
 
 A minimal KB configuration is like:
 
+    @prefix void: <http://rdfs.org/ns/void#> .
+    @prefix kees: <http:/ontology.it/kees/v1#> .
     <urn:kees:kb> void:subset 
         [ kees:source <http://data.example.com/file1.ttl> ],
         [ kees:source <http://data.example.com/file2.ttl> ] 
@@ -61,11 +63,16 @@ A minimal KB configuration is like:
     
 A more detailed KB configuration is like:
 
+
+    @prefix dcterms: <http://purl.org/dc/terms/> .
+    @prefix foaf: <http://xmlns.com/foaf/0.1/> .
+    @prefix void: <http://rdfs.org/ns/void#> .
+    @prefix kees: <http:/ontology.it/kees/v1#> .
+
     <urn:kees:kb>
         dcterms:title "demo" ;
         dcterms:description "Contains a partial copy of dbpedia"@en ;
         dcterms:license <http://www.opendatacommons.org/odc-public-domain-dedication-and-licence/>;
-        wv:norms <http://www.opendatacommons.org/norms/odc-by-sa/>;
         void:exampleResource 
             <http://dbpedia.org/resource/Berlin> , 
             <http://dbpedia.org/resource/Physics> ,
