@@ -63,23 +63,28 @@ A minimal KB configuration is like:
     
 A more detailed KB configuration is like:
 
-
     @prefix dcterms: <http://purl.org/dc/terms/> .
     @prefix foaf: <http://xmlns.com/foaf/0.1/> .
     @prefix void: <http://rdfs.org/ns/void#> .
     @prefix kees: <http:/ontology.it/kees/v1#> .
 
     <urn:kees:kb>
+    
+        ### Knowlege base metadata
         dcterms:title "demo" ;
         dcterms:description "Contains a partial copy of dbpedia"@en ;
         dcterms:license <http://www.opendatacommons.org/odc-public-domain-dedication-and-licence/>;
         void:exampleResource 
             <http://dbpedia.org/resource/Berlin> , 
-            <http://dbpedia.org/resource/Physics> ,
-            <http://dbpedia.org/resource/Ludwig_van_Beethoven> ;
-
-        #TBox
-        void:vocabulary <http://purl.org/goodrelations/v1.owl>;
+            <http://dbpedia.org/resource/Como> 
+        ;
+            
+        ### TBox
+        void:vocabulary 
+            <http://www.w3.org/2004/02/skos/core>, 
+            <http://ontology.it/kees/v1.owl>
+        ;
+        
         kees:rule
             [
                 a kees:ConstructRule ;
@@ -99,26 +104,28 @@ A more detailed KB configuration is like:
             ]
         ;
            
-        # ABox
+        #### ABox
         void:subset 
             [
-                a kees:ABoxGraph;
-                kees:source <http://data.example.com/file1.ttl> ;
+                kees:source <http://demo.hub1.linkeddata.center.s3.amazonaws.com/data/cities> ;
                 kees:accrualPeriodicity kees:montly ;
                 kees:accrualPolicy kees:RDFLoading ;
             ],
-            [ kees:source <http://data.example.com/file2.ttl> ] ;
+            [ 
+                kees:source <https://user:pwd@demo.hub1.linkeddata.center.s3.amazonaws.com/data/countries> ;
+            ] ;
             [ 
                 kees:source <http://live.dbpedia.org/sparql> 
                 kees:accrualPeriodicity kees:montly ;
                 kees:accrualPolicy kees:SPARQLQuery ;   
                 kees:accrualOption "select distinct ?t where {[] a ?t} LIMIT 100"
                 kees:forceAccept "text/turtle" ;
+                kees:retentionPolicy kees:keepOnError ;
             ] ;
     .
 
     
-The knowledge base configuration is always automatically initialized with:
+Please note that the knowledge base configuration is always automatically initialized with:
 
     <urn:kees:kb> a kees:KnowledgeBase ;
         foaf:homepage <> ;
