@@ -110,17 +110,17 @@ A more detailed KB configuration is like:
                 kees:source <http://demo.hub1.linkeddata.center.s3.amazonaws.com/data/cities> ;
                 kees:accrualPeriodicity kees:montly ;
                 kees:accrualPolicy kees:RDFLoading ;
-            ],
+            ] ,
             [ 
-                kees:source <https://user:pwd@demo.hub1.linkeddata.center.s3.amazonaws.com/data/countries> ;
-            ] ;
+                kees:source <https://demo.hub1.linkeddata.center.s3.amazonaws.com/data/countries> ;
+            ] ,
             [ 
-                kees:source <http://live.dbpedia.org/sparql> 
+                kees:source <http://live.dbpedia.org/sparql> ;
                 kees:accrualPeriodicity kees:montly ;
                 kees:accrualPolicy kees:SPARQLQuery ;   
-                kees:accrualOption "select distinct ?t where {[] a ?t} LIMIT 100"
+                kees:accrualOption "select distinct ?t where {[] a ?t} LIMIT 100" ;
                 kees:forceAccept "text/turtle" ;
-                kees:retentionPolicy kees:keepOnError ;
+                kees:onFetchingError kees:keepDataset ;
             ] ;
     .
 
