@@ -108,7 +108,7 @@ A more detailed KB configuration is like:
         void:subset 
             [
                 kees:source <http://demo.hub1.linkeddata.center.s3.amazonaws.com/data/cities> ;
-                kees:accrualPeriodicity kees:montly ;
+                kees:accrualPeriodicity kees:monthly ;
                 kees:accrualPolicy kees:RDFLoading ;
             ] ,
             [ 
@@ -116,7 +116,7 @@ A more detailed KB configuration is like:
             ] ,
             [ 
                 kees:source <http://live.dbpedia.org/sparql> ;
-                kees:accrualPeriodicity kees:montly ;
+                kees:accrualPeriodicity kees:monthly ;
                 kees:accrualPolicy kees:SPARQLQuery ;   
                 kees:accrualOption "select distinct ?t where {[] a ?t} LIMIT 100" ;
                 kees:forceAccept "text/turtle" ;
