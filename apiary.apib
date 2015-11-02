@@ -67,7 +67,8 @@ A more detailed KB configuration is like:
     @prefix foaf: <http://xmlns.com/foaf/0.1/> .
     @prefix void: <http://rdfs.org/ns/void#> .
     @prefix kees: <http://ontology.it/kees/v1#> .
-
+    @prefix sd: <http://www.w3.org/ns/sparql-service-description#> .
+    
     <urn:kees:kb>
     
         ### Knowlege base metadata
@@ -82,7 +83,7 @@ A more detailed KB configuration is like:
         ### TBox
         void:vocabulary 
             <http://www.w3.org/2004/02/skos/core>, 
-            <http://ontology.it/kees/v1.owl>
+            <http://ontology.it/kees/v1>
         ;
         
         kees:rule
@@ -107,20 +108,29 @@ A more detailed KB configuration is like:
         #### ABox
         void:subset 
             [
-                kees:source <http://demo.hub1.linkeddata.center.s3.amazonaws.com/data/cities> ;
+                kees:source <http://demo.hub1.linkeddata.center.s3.amazonaws.com/data/cities.ttl> ;
                 kees:accrualPeriodicity kees:monthly ;
-                kees:accrualPolicy kees:RDFLoading ;
+                kees:accrualPolicy [ kees:RDFLoading 
+                    kees:forceAccept "text/turtle" ;
+                ];
             ] ,
             [ 
-                kees:source <https://demo.hub1.linkeddata.center.s3.amazonaws.com/data/countries> ;
-            ] ,
-            [ 
-                kees:source <http://live.dbpedia.org/sparql> ;
-                kees:accrualPeriodicity kees:monthly ;
-                kees:accrualPolicy kees:SPARQLQuery ;   
-                kees:accrualOption "select distinct ?t where {[] a ?t} LIMIT 100" ;
-                kees:forceAccept "text/turtle" ;
+                kees:source <https://demo.hub1.linkeddata.center.s3.amazonaws.com/data/countries.ttl> ;
                 kees:onFetchingError kees:keepDataset ;
+            ] ,
+            [ 
+                kees:source <http://dbpedia.org#first_1000_triple_extraction> ;
+                kees:accrualPeriodicity kees:monthly ;
+                kees:onFetchingError kees:keepDataset ;
+                kees:accrualPolicy [ a kees:SPARQLQuery ;
+                    sd:endpoint <http://live.dbpededia.org/sparql> ;
+                    kees:forceAccept "text/turtle" ;
+                    kees:constructQuery "CONSTRUCT distinct ?s ?p ?o WHERE {?s ?p ?o}" ;
+                    kees:pageSize 1000 ;
+                    kees:fromPage 1 ;
+                    kees:toPage 1 ;
+                    kees:queryMethod "POST" ;
+                ]
             ] ;
     .
 
