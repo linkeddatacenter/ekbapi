@@ -110,17 +110,17 @@ A more detailed KB configuration is like:
             [
                 kees:source <http://demo.hub1.linkeddata.center.s3.amazonaws.com/data/cities.ttl> ;
                 kees:accrualPeriodicity kees:monthly ;
-                kees:accrualPolicy [ kees:RDFLoading ;
-                    kees:forceAccept "text/turtle" ;
-                ];
             ] ,
             [ 
                 kees:source <https://demo.hub1.linkeddata.center.s3.amazonaws.com/data/countries.ttl> ;
                 kees:onFetchingError kees:keepDataset ;
-                kees:useAuthentication [ a kees:HttpBasicAuthentication ;
-                    kees:username "user" ;
-                    kees:password "secret" ;
-                ] ;
+                kees:accrualPolicy [ kees:RDFLoading ;
+                    kees:forceAccept "text/turtle" ;
+                    kees:useAuthentication [ a kees:HttpBasicAuthentication ;
+                        kees:username "user" ;
+                        kees:password "secret" ;
+                    ] ;
+                ];
             ] ,
             [ 
                 kees:source <http://dbpedia.org#first_10_triples> ;
@@ -141,8 +141,7 @@ A more detailed KB configuration is like:
                     kees:toPage 1 ;
                     kees:queryMethod "POST" ;
                 ]
-            ]
-        .
+            ] ;
     .
     
 Please note that the knowledge base configuration is always automatically initialized with:
@@ -269,7 +268,8 @@ Returns the current knowledge base config.
 
 ### Change current configuration [PUT]
 
-Substitutes the knowledge base configuration with the request body content.
+Substitutes the knowledge base configuration with the request body content. All missing properties and default
+values are inferred from kees ontology restrictions and axioms.
 
 + Request (text/turtle)
             
