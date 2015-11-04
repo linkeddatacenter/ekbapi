@@ -110,30 +110,40 @@ A more detailed KB configuration is like:
             [
                 kees:source <http://demo.hub1.linkeddata.center.s3.amazonaws.com/data/cities.ttl> ;
                 kees:accrualPeriodicity kees:monthly ;
-                kees:accrualPolicy [ kees:RDFLoading 
+                kees:accrualPolicy [ kees:RDFLoading ;
                     kees:forceAccept "text/turtle" ;
                 ];
             ] ,
             [ 
                 kees:source <https://demo.hub1.linkeddata.center.s3.amazonaws.com/data/countries.ttl> ;
                 kees:onFetchingError kees:keepDataset ;
+                kees:useAuthentication [ a kees:HttpBasicAuthentication ;
+                    kees:username "user" ;
+                    kees:password "secret" ;
+                ] ;
             ] ,
             [ 
-                kees:source <http://dbpedia.org#first_1000_triple_extraction> ;
+                kees:source <http://dbpedia.org#first_10_triples> ;
                 kees:accrualPeriodicity kees:monthly ;
                 kees:onFetchingError kees:keepDataset ;
                 kees:accrualPolicy [ a kees:SPARQLQuery ;
-                    sd:endpoint <http://live.dbpededia.org/sparql> ;
-                    kees:forceAccept "text/turtle" ;
-                    kees:constructQuery "CONSTRUCT distinct ?s ?p ?o WHERE {?s ?p ?o}" ;
-                    kees:pageSize 1000 ;
+                    kees:useSparqlService [ sd:endpoint <http://dbpedia.org/sparql> ] ;
+                    kees:constructQuery """
+                        CONSTRUCT {
+                            ?s ?p ?o
+                        }
+                        WHERE {
+                            ?s ?p ?o
+                        }
+                    """ ;
+                    kees:pageSize 10 ;
                     kees:fromPage 1 ;
                     kees:toPage 1 ;
                     kees:queryMethod "POST" ;
                 ]
-            ] ;
+            ]
+        .
     .
-
     
 Please note that the knowledge base configuration is always automatically initialized with:
 
