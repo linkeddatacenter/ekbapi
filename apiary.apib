@@ -229,12 +229,12 @@ The endpoint is protected by a guard that prevents query during learning and rea
 In these cases, any access to the endpoint receives a 503 error (Service Unavailable). 
 
 
-## Knowledge base configuration [/{kb}]
+## Knowledge Base management [/{kb}]
 
 + Parameters
     + kb (required, string, `demo`) ... `id` of the Knowlege base  
 
-### Get configuration [GET]
+### Get Knowledge Base configuration [GET]
 
 Returns the current knowledge base config.
 
@@ -265,7 +265,7 @@ Returns the current knowledge base config.
 
 
 
-### Change current configuration [PUT]
+### Change Knowledge Base configuration [PUT]
 
 Substitutes the knowledge base configuration with the request body content. All missing properties and default
 values are inferred from kees ontology restrictions and axioms.
@@ -287,7 +287,7 @@ values are inferred from kees ontology restrictions and axioms.
             true
 
             
-### Empty the configuration [DELETE]
+### Empty the Knowledge Base [DELETE]
 
 This API delete knowledge base configuration. It is equivalent to a call to
 *sparql/update* with command: DROP SILENT ALL 
@@ -299,14 +299,16 @@ This API delete knowledge base configuration. It is equivalent to a call to
             true
 
 
-## Knowledge base version management [/{kb}/version]
+## Knowledge Base version management [/{kb}/version]
+
+Knowledge Base has a version id, the version id change after a SPARQL update or after a new ingestion cycle.
 
 + Parameters
     + kb (required, string, `demo`) ... `id` of the Knowlege base  
 
-### Get version [GET]
+### Get Knowledge Base version id [GET]
 
-Returns the current knowledge base version id. The version id is an unixtime stamp
+Returns the current knowledge base version id. The version id is an unix time stamp
 relatetd to the last knowlege base update action.
 
             
@@ -319,10 +321,10 @@ relatetd to the last knowlege base update action.
 
 
 
-### Set a new knowledge base version id [PUT]
+### Change Knowledge Base version id [PUT]
 
 Substitute the knowledge base version id with the request body content. This action is equivalet 
-to create a new knowlege base configuration specifiing a <http://purl.org/dc/terms/identifier>
+to create a new knowlege base configuration specifying a <http://purl.org/dc/terms/identifier>
 attribute.
 
 This request forces internal caches to be revalidated.
@@ -341,9 +343,9 @@ This request forces internal caches to be revalidated.
 
             
 
-## SPARQL 1.1 Query endpoint [/{kb}/sparql{?query}]
+## SPARQL 1.1 Query [/{kb}/sparql{?query}]
 
-This end point implements [SPARQL 1.1 protocol query operations](http://www.w3.org/TR/sparql11-protocol/#query-operation) 
+This API implements [SPARQL 1.1 protocol query operations](http://www.w3.org/TR/sparql11-protocol/#query-operation) 
 for [query language](http://www.w3.org/TR/sparql11-query/) specifications.
 
 Fully supports [http content negotiation](http://en.wikipedia.org/wiki/Content_negotiation)
@@ -400,7 +402,7 @@ To get Service description call the end-point withouth any paramethers
             
 + Response 200
 
-    [SPARQL 1.1 Query endpoint][]
+    [SPARQL 1.1 Query][]
 
 
 
@@ -426,20 +428,19 @@ It supports also unencoded paylout when  Content-Type header is set to "applicat
             
 + Response 200
 
-    [SPARQL 1.1 Query endpoint][]
+    [SPARQL 1.1 Query][]
 
 
 
-## SPARQL 1.1 Update endpoint [/{kb}/sparql/update]
+## SPARQL 1.1 Update [/{kb}/sparql/update]
 
-This end point implements [SPARQL 1.1 protocol update operations](http://www.w3.org/TR/sparql11-protocol/#update-operation) 
+This API implements [SPARQL 1.1 protocol update operations](http://www.w3.org/TR/sparql11-protocol/#update-operation) 
 for [update language](http://www.w3.org/TR/sparql11-update/) specifications.
 
 SPARQL update endpoint support [http content negotiation](http://en.wikipedia.org/wiki/Content_negotiation) for state representation rendering.
 
 All HTTP requests that are mutative (add or remove) must include a valid Content-Type header set to the MIME type of the request body,
  where “valid” is a valid MIME type for application/sparql-results+xml OR text/boolean .
-
 
 
 + Parameters
@@ -528,12 +529,12 @@ It supports also unencoded paylout when  Content-Type header is set to "applicat
 
 
 
-## Data ingestion planning and monitoring [/{kb}/activities{?filter}]
+## Data ingestion activity management [/{kb}/activities{?filter}]
 
 This endpoint allows to populate the knowledge base by driving all four KEES windows 
 (Booting, Learning and Reasoning) . 
 
-Tasks are executed asyncronusly as soon as there  are enough resources available in the system.
+Tasks are executed asyncronusly as soon as there are enough resources available in the system.
 
 Each task is provided with an unique id in the knowledge base. 
 The task state can be inspected before, after and during execution.
@@ -572,7 +573,7 @@ Lists tasks with their status (pending, running, complete, etc) and planned task
             +-----------+-----------------+-------------------------+
 
 
-### Start a KEES cycle activity [POST]
+### Start a data ingestion activity [POST]
 Ask for a new kees cicle to be executed as soon as possible.
 
 Accepts following x-www-form-urlencoded vars:
@@ -616,7 +617,7 @@ Deletes all pending tasks. With no parameters delete activities that have to be 
         true
 
 
-## Data ingestion activity [/{kb}/activity/{activityId}]
+## Ingestion activity [/{kb}/activity/{activityId}]
 
 Shows or delete a specific activity . 
 
@@ -642,19 +643,9 @@ Deletes the activity.
         true
 
 
+## User management [/{kb}/user/{user}/pwd]
 
-
-
-## Change authentication password [/{kb}/user/{user}/pwd]
-Changes the password of the knowledge admin user.
-
-*Password requirements*:
-   at least 6 characters and maximum of 20,
-   must contains one digit from 0-9,
-   must contains one lowercase characters,
-   must contains one uppercase characters,
-   must contains one special symbols in the list **@#$%**.
-
+This endpoint  allows to change the user profile.
 
 + Authorization ... [Base64](http://en.wikipedia.org/wiki/Base64) encoded string literal in form _"username:password"_ preceeded by authorization method and its space.
 
@@ -663,6 +654,15 @@ Changes the password of the knowledge admin user.
     + user (required, string, `admin`) ... `id` of the user (same as Knowlege base kb)
 
 ### Change user password [PUT]
+Changes the password of the knowledge admin user.
+
+*Password requirements*:
+   at least 6 characters and maximum of 20,
+   must contains one digit from 0-9,
+   must contains one lowercase characters,
+   must contains one uppercase characters,
+   must contains one special symbols in the list **@#$%**.
+   
 + Request
 
     + Body
