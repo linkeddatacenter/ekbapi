@@ -6,8 +6,7 @@ FORMAT: 1A
 ## Overview
 
 eKB is a set of RESTful APIs designed by [LinkedData.Center](http://LinkedData.Center/) to populate and
-query a knowledge base compliant with the [W3C RDF standard](http://www.w3.org/TR/rdf11-primer/) 
-and with the [Knowledge Exchange Engine Service (KEES) architecture](http://www.e-artspace.com/home/project/kees).
+query a knowledge base compliant with the [W3C RDF semantic web](http://www.w3.org/standards/semanticweb/) 
 
 
 | Resource              | GET | PUT | POST | DELETE | Service Description |
@@ -20,74 +19,22 @@ and with the [Knowledge Exchange Engine Service (KEES) architecture](http://www.
 | /{kb}/activity/{id}   | X   |     |      | X      | data ingestion tasks |
 | /{kb}/user/{user}/pwd |     | X   |      |        | user password management |
 
-## The knowledge base
-LinkedData.Center implements a semantic system where infomation is described as a set of 
-statement according with the W3C standard 
-[Resource Description Framework (RDF)](http://www.w3.org/TR/rdf11-primer/).
 
-There are two disjonined set of statements. *TBox* and *ABox*.
-Together ABox and TBox make up the whole *knowledge base*:
-
- - TBox statements describe a system in terms of controlled vocabularies, 
-for example, a set of classes and properties such as:
-**All Students are Persons** or **There are two types of Persons: Students and Teachers**.
-
- - ABox are TBox-compliant statements about that vocabulary. 
-ABox statements describe facts about things, using vocabularies defined in Tbox such as
-**John is a Person** or **Mary has blue eyes**.
-
-In other words, TBox statements are sometimes associated with object-oriented 
-classes and ABox statements associated with instances of those classes.
-
-TBox statements tend to be more permanent within a knowledge base and so they are loaded during
-the knowledge base initialization (KEES booting window). 
-In contrast, ABox statements are much more dynamic in nature and they are reloaded (only if changed)
-during the KEES learning window. A special type of ABox statements are those that are inferred
-during the KEES Reasoning windows evaluating axioms and rules contained into TBox.
-
-## Knowledge Base Configuration
-A *Knowledge Base Configuration* is a collection of metadata that describe
-TBox or Abox Statements. The [KEES language profile](http://linkeddata.center/kees) 
-define the vocabularies used to express the knowlege base configuration.
-
-
-A minimal KB configuration is like:
-
-    @prefix void: <http://rdfs.org/ns/void#> .
-    @prefix kees: <http://linkeddata.center/kees/v1#> .
-    <urn:kees:kb> void:subset 
-        [ kees:source <http://data.example.com/file1.ttl> ],
-        [ kees:source <http://data.example.com/file2.ttl> ] 
-    .
-
-See [more examples of configuration description in this article](http://linkeddata.center/help/devop/kees-profile).    
-    
-Please note that the knowledge base configuration is always automatically initialized with:
-
-    <urn:kees:kb> a kees:KnowledgeBase ;
-        foaf:homepage <> ;
-        void:feature 
-            <http://www.w3.org/ns/formats/RDF_XML> ,
-            <http://www.w3.org/ns/formats/Turtle> ,
-            <http://www.w3.org/ns/formats/N-Triples> ;
-        void:sparqlEndpoint <sparql>;
-    .
-
-## Storage
-eKB always traks the provenance of each statement storing all information
-as linked data in a graph database as a set of named graph:
-
- - All knowlege base metadata is stored in *urn:kees* named graph.
- - TBox statemensts are stored in *urn:kees:tbox*named graph.
- - ABox statemensts are stored in named graphs according their provenenance.
- - All inferred triples are stored in *urn:kees:inferences* named graph.
- - All information about learning and reasoning tasks (i.e. activities) are stored as 
- linked data resources (i.e. in a  graph with name *<your endpoint>/{db}/activity/{id}*)
+LinkedData.Center provides an instance of a RDF graph database where infomation are organized in as a set
+of named graphs. Together all named graphs make up a  *knowledge base*.
 
 Please note that the *defaut graph* behaviour is not specified in sparql 1.1,
 so some RDF quadstore engines treat it as the union of all named graph, other engines just as an
 unamed graph. To keep maximum compatibility **the default graph is not used by eKB**.
 
+
+A minimal KB configuration is like:
+
+    @prefix kees: <http://linkeddata.center/kees/v1#> .
+    [] kees:source <http://data.example.com/file1.ttl> ] .
+
+See [more examples of configuration description in this article](http://linkeddata.center/help/devop/kees-profile).    
+    
 ## Autentication
 
 To access eKB APIs you always need to provide your LinkedData.Center credentials using
