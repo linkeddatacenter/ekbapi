@@ -6,7 +6,7 @@ FORMAT: 1A
 ## Overview
 
 eKB is a set of RESTful APIs designed by [LinkedData.Center](http://LinkedData.Center/) to populate and
-query a knowledge base compliant with the [W3C RDF semantic web](http://www.w3.org/standards/semanticweb/) 
+query a knowledge base compliant with the [Semantic Web](http://www.w3.org/standards/semanticweb/) 
 
 
 | Resource              | GET | PUT | POST | DELETE | Service Description |
@@ -22,10 +22,6 @@ query a knowledge base compliant with the [W3C RDF semantic web](http://www.w3.o
 
 LinkedData.Center provides an instance of a RDF graph database where infomation are organized in as a set
 of named graphs. Together all named graphs make up a  *knowledge base*.
-
-Please note that the *defaut graph* behaviour is not specified in sparql 1.1,
-so some RDF quadstore engines treat it as the union of all named graph, other engines just as an
-unamed graph. To keep maximum compatibility **the default graph is not used by eKB**.
 
 
 A minimal KB configuration is like:
@@ -229,6 +225,10 @@ Depending from SPARQL query, following MIME types are recognized in the Accept h
 | ASK        | application/sparql-results+xml OR text/boolean                                                                                       |
 | CONSTRUCT or DESCRIBE | application/rdf+xml OR text/turtle OR application/x-turtle OR text/x-nquads OR application/ld+json |
 
+
+Please note that the *defaut graph* behaviour is not specified in sparql 1.1,
+so some RDF quadstore engines treat it as the union of all named graph, other engines just as an
+unamed graph. To keep maximum compatibility **the default graph should not be used**.
 
 + Parameters
     + kb (required, string, `demo`) ... `id` of the Knowlege base  
