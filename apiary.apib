@@ -6,7 +6,7 @@ FORMAT: 1A
 ## Overview
 
 eKB is a set of RESTful APIs designed by [LinkedData.Center](http://LinkedData.Center/) to populate and
-query a knowledge base compliant with the [Semantic Web](http://www.w3.org/standards/semanticweb/) 
+query a knowledge base compliant with the [Semantic Web](http://www.w3.org/standards/semanticweb/) technologies. 
 
 
 | Resource              | GET | PUT | POST | DELETE | Service Description |
@@ -20,11 +20,11 @@ query a knowledge base compliant with the [Semantic Web](http://www.w3.org/stand
 | /{kb}/user/{user}/pwd |     | X   |      |        | user password management |
 
 
-LinkedData.Center provides an instance of a RDF graph database where infomation are organized in as a set
-of named graphs. Together all named graphs make up a  *knowledge base*.
+LinkedData.Center provides an instance of a graph database where infomation are organized in as a set
+of RDF named graphs. Together all named graphs make up a **knowledge base**
 
+eKB APIs recognize a *Knowledge Base Configuration* described with the [KEES Language Profile](http://LinkedData.Center/kees). 
 
-eKB APIs recognize a Knowledge Base COnfiguration described with the [KEES Language Profile](http://LinkedData.Center/kees). 
 A minimal KB configuration is like:
 
     @prefix kees: <http://linkeddata.center/kees/v1#> .
@@ -84,13 +84,13 @@ The detail field contains the entire tracing report of all involved computation 
 ## Protection from inconsistent data
 
 The knowledge base may be in a state temporarily inconsistent during the phases 
-of acquisition of new data (learning window) or during the steps of the inference
-computation (reasoning window).
-During these temporary windows, the result of the query to the knowledge base may be incorrect.
+of acquisition of new facts (learning window) and during the computation of inferred 
+data (reasoning window).
 
-The endpoint is protected by a guard that prevents query during learning and reasoning windows. 
-In these cases, any access to the endpoint receives a 503 error (Service Unavailable). 
+During these windows, queryies results may be incorrect. For this reason the endpoint is 
+protected by a guard that prevents access to the knowledge base while it is learning and reasoning. 
 
+In such cases, any access to the endpoint receives a 503 error (Service Unavailable). 
 
 
 ## Knowledge Base management [/{kb}]
