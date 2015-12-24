@@ -24,6 +24,7 @@ LinkedData.Center provides an instance of a RDF graph database where infomation 
 of named graphs. Together all named graphs make up a  *knowledge base*.
 
 
+eKB APIs recognize a Knowledge Base COnfiguration described with the [KEES Language Profile](http://LinkedData.Center/kees). 
 A minimal KB configuration is like:
 
     @prefix kees: <http://linkeddata.center/kees/v1#> .
@@ -93,6 +94,8 @@ In these cases, any access to the endpoint receives a 503 error (Service Unavail
 
 
 ## Knowledge Base management [/{kb}]
+
+This API allows to set/modify and delete a Knowledge Base and its configuration.
 
 + Parameters
     + kb (required, string, `demo`) ... `id` of the Knowlege base  
@@ -164,7 +167,8 @@ This API delete knowledge base configuration. It is equivalent to a call to
 
 ## Knowledge Base version management [/{kb}/version]
 
-Knowledge Base has a version id, the version id change after a SPARQL update or after a new ingestion cycle.
+Knowledge Base has a version id, the version id change after a SPARQL update or after a
+new data ingestion cycle. This API allows to manage Knowlege Base versions.
 
 + Parameters
     + kb (required, string, `demo`) ... `id` of the Knowlege base  
@@ -398,21 +402,22 @@ It supports also unencoded paylout when  Content-Type header is set to "applicat
 
 ## Data ingestion activity management [/{kb}/activities{?filter}]
 
-This endpoint allows to populate the knowledge base by driving all four KEES windows 
+This API allows to populate the knowledge base by driving all four KEES windows 
 (Booting, Learning and Reasoning) . 
 
-Tasks are executed asyncronusly as soon as there are enough resources available in the system.
+Ingestion tasks are executed asyncronusly as soon as there are enough 
+resources available in the system.
 
-Each task is provided with an unique id in the knowledge base. 
-The task state can be inspected before, after and during execution.
-Tasks information is stored in <urn:kees:activities> named graph.
-By default, task reports are retained for one day before to be purged.
+Each ingestion activity is provided with an unique id in the knowledge base. 
+The activity state can be inspected before, after and during execution.
+Ingestion activity reports are stored in named graphs.
+By default, ingestion activity reports are retained for one day before to be purged.
 
 + Authorization ... [Base64](http://en.wikipedia.org/wiki/Base64) encoded string literal in form _"username:password"_ preceeded by authorization method and its space.
 
 
 ### List activities [GET]
-Lists tasks with their status (pending, running, complete, etc) and planned tasks. 
+Lists ingestion activities with their status (pending, running, complete, etc). 
 
 + Parameters
     + filter (optional, string, `running`) ... show only task in a defined status.
@@ -441,7 +446,7 @@ Lists tasks with their status (pending, running, complete, etc) and planned task
 
 
 ### Start a data ingestion activity [POST]
-Ask for a new kees cicle to be executed as soon as possible.
+Ask for a new kees cycle to be executed as soon as possible.
 
 Accepts following x-www-form-urlencoded vars:
 
@@ -486,13 +491,13 @@ Deletes all pending tasks. With no parameters delete activities that have to be 
 
 ## Ingestion activity [/{kb}/activity/{activityId}]
 
-Shows or delete a specific activity . 
+This API shows or delete a specific activity report graph. 
 
 + Authorization ... [Base64](http://en.wikipedia.org/wiki/Base64) encoded string literal in form _"username:password"_ preceeded by authorization method and its space.
 
 
 ### Show activity [GET]
-Lists tasks (pending, running and complete). 
+Display the RDF graph containg all activity ingestion report.
 
 
 + Response 200 (text/turtle)
@@ -503,7 +508,7 @@ Lists tasks (pending, running and complete).
 
 
 ### Delete activity [DELETE]
-Deletes the activity. 
+Deletes the activity ingestion report graph. 
 
 + Response 200
 
@@ -512,7 +517,7 @@ Deletes the activity.
 
 ## User management [/{kb}/user/{user}/pwd]
 
-This endpoint  allows to change the user profile.
+This API allows to change the user profile used for authentication.
 
 + Authorization ... [Base64](http://en.wikipedia.org/wiki/Base64) encoded string literal in form _"username:password"_ preceeded by authorization method and its space.
 
