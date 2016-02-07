@@ -28,7 +28,7 @@ eKB APIs recognize a *Knowledge Base Configuration* described with the [KEES Lan
 A minimal KB configuration is like:
 
     @prefix kees: <http://linkeddata.center/kees/v1#> .
-    [] kees:source <http://data.example.com/file1.ttl> ] .
+    [] kees:source <http://data.example.com/file1.ttl> .
 
 See [more examples of configuration description in this article](http://linkeddata.center/help/devop/kees-profile).    
     
@@ -115,20 +115,8 @@ Returns the knowledge base configuration as an RDF document.
 
     + Body
     
-            @prefix void: <http://rdfs.org/ns/void#> .
-            @prefix foaf: <http://xmlns.com/foaf/0.1/> ..
-            @prefix kees: <http://ontology.it/kees/v1#> .
-            
-            # created by boot windows
-            <urn:kees:kb> a kees:KnowledgeBase ;
-                foaf:homepage <> ;
-                void:feature 
-                    <http://www.w3.org/ns/formats/RDF_XML> ,
-                    <http://www.w3.org/ns/formats/Turtle> ,
-                    <http://www.w3.org/ns/formats/N-Triples> ;
-                void:sparqlEndpoint <sparql>;
-            .
-
+            @prefix kees: <http://linkeddata.center/kees/v1#> .
+            [] kees:source <http://data.example.com/file1.ttl> .
 
 
 ### Change Knowledge Base configuration [PUT]
@@ -140,11 +128,9 @@ values are inferred from kees ontology restrictions and axioms.
             
     + Body
 
-            [] a kees:KnowledgeBase ;
-                void:subset 
-                    [ kees:source <http://data.example.com/file1.ttl> ]
-                    [ kees:source <http://data.example.com/file2.ttl> ] ;
-            .    
+            @prefix kees: <http://linkeddata.center/kees/v1#> .
+            [] kees:source <http://data.example.com/file1.ttl> .
+
             
 + Response 200
 
@@ -295,7 +281,7 @@ It supports also unencoded paylout when  Content-Type header is set to "applicat
 
             SELECT * WHERE {
                 ?s ?p ?o
-            }
+            } LIMIT 10
             
 + Response 200
 
@@ -546,4 +532,3 @@ Changes the password of the knowledge admin user.
     + Body
     
             true
-
