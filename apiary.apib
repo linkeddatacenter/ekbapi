@@ -8,20 +8,31 @@ FORMAT: 1A
 eKB is a set of RESTful APIs designed by [LinkedData.Center](http://LinkedData.Center/) to populate and
 query a knowledge base compliant with the [Semantic Web](http://www.w3.org/standards/semanticweb/) technologies. 
 
-
-| Resource              | GET | PUT | POST | DELETE | Service Description |
-|-----------------------|-----|-----|------|--------|-------------|
-| /{kb}                 | X   | X   |      | X      | Knowledge base configuration |
-| /{kb}/version         | X   | X   |      |        | Knowledge base version management |
-| /{kb}/sparql          | X   |     | X    |        | Sparql 1.1 Query endpoint | 
-| /{kb}/sparql/update   | X   |     | X    |        | Sparql 1.1 Update endpoint |
-| /{kb}/activities      | X   |     | X    | X      | data ingestion planning and monitoring |
-| /{kb}/activity/{id}   | X   |     |      | X      | data ingestion activity report |
-| /{kb}/user/{user}/pwd |     | X   |      |        | user password management |
+LinkedData.Center provides an instance of an RDF graph database where infomation are organized in as a set
+of named graphs. The union of all named graphs are refered as **knowledge base**
 
 
-LinkedData.Center provides an instance of a graph database where infomation are organized in as a set
-of RDF named graphs. Together all named graphs make up a **knowledge base**
+| Resource              | GET | PUT | POST | DELETE | Returned Format | Service Description |
+|-----------------------|-----|-----|------|--------|--------|---------------------|
+| /{kb}                 | X   | X   |      | X      | RDF*   | Knowledge base configuration |
+| /{kb}/sparql          | X   |     | X    |        | RDF*   | Sparql 1.1 Query endpoint | 
+| /{kb}/sparql/update   |     |     | X    |        | RDF*   | Sparql 1.1 Update endpoint |
+| /{kb}/activities      | X   |     | X    | X      | json   | data ingestion planning and monitoring |
+| /{kb}/activity/{id}   | X   |     |      | X      | RDF*   | data ingestion activity report |
+| /{kb}/cache           | X   |     |      | X      | json   | sparql cache management |
+| /{kb}/lock            | X   | X   |      | X      | json   | KB guard management |
+| /{kb}/profile         | X   |     |      |        | json   | KB profile management |
+| /{kb}/profile/cache   |     |     |      | X      | json   | KB profile cache management |
+| /{kb}/queries         | X   |     |      |        | json   | queries list management |
+| /{kb}/querystore      | X   |     |      |        | RDF*   | querystore management |
+| /{kb}/graphstore      | X   |     |      |        | RDF*   | graphstore management |
+| /{kb}/table/{queryId} | X   |     |      |        | RDF*   | generic table  management |
+| /{kb}/table/{dbId}/{tableId}.{_format} | X   |     |      |        |  depending from extension       | table url  management |
+| /{kb}/user/{user}/pwd |     | X   |      |        | json   | user password management |
+
+* RDF =  RDF serialization through [http content negotiation](http://en.wikipedia.org/wiki/Content_negotiation) 
+for state representation rendering.
+
 
 eKB APIs recognize a *Knowledge Base Configuration* described with the [KEES Language Profile](http://LinkedData.Center/kees). 
 
@@ -39,10 +50,6 @@ To access eKB APIs you always need to provide your LinkedData.Center credentials
 
 + Authorization ... [Base64](http://en.wikipedia.org/wiki/Base64) encoded string literal in form _"username:password"_ preceeded by authorization method and its space.
 
-
-## Content negotiation
-All eKB APIs supports [http content negotiation](http://en.wikipedia.org/wiki/Content_negotiation) 
-for state representation rendering.
 
 ## Server Responses
 
@@ -63,22 +70,6 @@ Following table sumarize typical http status code returned by APIS
 | 500  | An unspecified failure in the server.                                                           |
 | 503  | The eKB serve is learnig new resources or is reasoning. Sparql interface is temporary disabled. |
 
-Error representation is based on [ietf specs](http://tools.ietf.org/html/draft-nottingham-http-problem-07).
-Here is an example of a 404 error in json representation:
-
-       HTTP/1.1 404 Not found
-       Content-Type: application/problem+json
-       Content-Language: en
-
-        {
-            problemType: "http://dbpedia.org/resource/Category:HTTP_status_codes"
-            title: "Job not found"
-            detail: "Job report 5441392469671 not found."
-            problemInstance: "http://dbpedia.org/resource/HTTP_404"
-            httpStatus: 404
-        }
-
-The detail field contains the entire tracing report of all involved computation steps.
 
 
 ## Protection from inconsistent data
@@ -91,6 +82,8 @@ During these windows, queryies results may be incorrect. For this reason the end
 protected by a guard that prevents access to the knowledge base while it is learning and reasoning. 
 
 In such cases, any access to the endpoint receives a 503 error (Service Unavailable). 
+
+The lock APIs set and remove guard locks.
 
 
 ## Knowledge Base management [/{kb}]
@@ -211,8 +204,7 @@ Depending from SPARQL query, following MIME types are recognized in the Accept h
 
 | Query type | Supported MIMETYPE in Accept header                                                                |
 |------------|----------------------------------------------------------------------------------------------------|
-| SELECT     | application/sparql-results+xml OR application/sparql-results+json                                  |
-| ASK        | application/sparql-results+xml OR text/boolean                                                                                       |
+| SELECT or ASK    | application/sparql-results+xml OR application/sparql-results+json                                  |
 | CONSTRUCT or DESCRIBE | application/rdf+xml OR text/turtle OR application/x-turtle OR text/x-nquads OR application/ld+json |
 
 
