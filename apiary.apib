@@ -3,7 +3,7 @@ FORMAT: 1A
 # eKB APIs for LinkedData.Center
 [![LinkedData.Center logo](http://LinkedData.Center/home/images/logo.png)](http://linkeddata.center/)
 
-## Overview
+# Overview
 
 eKB is a set of RESTful APIs designed by [LinkedData.Center](http://LinkedData.Center/) to populate and
 query a knowledge base compliant with the [Semantic Web](http://www.w3.org/standards/semanticweb/) technologies. 
@@ -11,35 +11,12 @@ query a knowledge base compliant with the [Semantic Web](http://www.w3.org/stand
 LinkedData.Center provides an instance of an RDF graph database where infomation are organized in as a set
 of named graphs. The union of all named graphs are refered as **knowledge base**
 
-
-| Resource              | GET | PUT | POST | DELETE | Returned Format | Service Description |
-|-----------------------|-----|-----|------|--------|--------|---------------------|
-| /{kb}                 | X   | X   |      | X      | RDF*   | Knowledge base configuration |
-| /{kb}/sparql          | X   |     | X    |        | RDF*   | Sparql 1.1 Query endpoint | 
-| /{kb}/sparql/update   |     |     | X    |        | RDF*   | Sparql 1.1 Update endpoint |
-| /{kb}/activities      | X   |     | X    | X      | json   | data ingestion planning and monitoring |
-| /{kb}/activity/{id}   | X   |     |      | X      | RDF*   | data ingestion activity report |
-| /{kb}/cache           | X   |     |      | X      | json   | sparql cache management |
-| /{kb}/lock            | X   | X   |      | X      | json   | KB guard management |
-| /{kb}/profile         | X   |     |      |        | json   | KB profile management |
-| /{kb}/profile/cache   |     |     |      | X      | json   | KB profile cache management |
-| /{kb}/queries         | X   |     |      |        | json   | queries list management |
-| /{kb}/querystore      | X   |     |      |        | RDF*   | querystore management |
-| /{kb}/graphstore      | X   |     |      |        | RDF*   | graphstore management |
-| /{kb}/table/{queryId} | X   |     |      |        | RDF*   | generic table  management |
-| /{kb}/table/{dbId}/{tableId}.{_format} | X   |     |      |        |  depending from extension       | table url  management |
-| /{kb}/user/{user}/pwd |     | X   |      |        | json   | user password management |
-
-* RDF =  RDF serialization through [http content negotiation](http://en.wikipedia.org/wiki/Content_negotiation) 
-for state representation rendering.
-
-
 eKB APIs recognize a *Knowledge Base Configuration* described with the [KEES Language Profile](http://LinkedData.Center/kees). 
 
-A minimal KB configuration is like:
+A minimal KB configuration is like this example:
 
     @prefix kees: <http://linkeddata.center/kees/v1#> .
-    [] kees:source <http://data.example.com/file1.ttl> .
+    [] kees:source <http://linkeddata.center/project/kees/master/v1/introspection.ttl> .
 
 See [more examples of configuration description in this article](http://linkeddata.center/help/devop/kees-profile).    
     
@@ -50,6 +27,16 @@ To access eKB APIs you always need to provide your LinkedData.Center credentials
 
 + Authorization ... [Base64](http://en.wikipedia.org/wiki/Base64) encoded string literal in form _"username:password"_ preceeded by authorization method and its space.
 
+## Content negotiation
+
+All services returning  RDF data support serialization through [http content negotiation](http://en.wikipedia.org/wiki/Content_negotiation) 
+for state representation rendering according SPARQL 1.1 protocol specification.
+
+By default json style is preferred.
+
+## CORS support
+
+LinkedData.Center APIs support Cross-origin resource sharing.
 
 ## Server Responses
 
@@ -85,8 +72,40 @@ In such cases, any access to the endpoint receives a 503 error (Service Unavaila
 
 The lock APIs set and remove guard locks.
 
+# Management APIs
 
-## Knowledge Base management [/{kb}]
+| Resource              | GET | PUT | POST | DELETE | Returns | Service Description |
+|-----------------------|-----|-----|------|--------|--------|---------------------|
+| /{kb}                 | X   | X   |      | X      | RDF*   | Knowledge configuration |
+| /{kb}/lock            | X   | X   |      | X      | json   | KB guard management |
+| /{kb}/profile         | X   |     |      |        | json   | KB profile management |
+| /{kb}/profile/cache   |     |     |      | X      | json   | KB profile cache management |
+| /{kb}/user/{user}/pwd |     | X   |      |        | json   | user password management |
+
+# Accellerated APIs
+
+| Resource              | GET | PUT | POST | DELETE | Returns | Service Description |
+|-----------------------|-----|-----|------|--------|--------|---------------------|
+| /{kb}/sparql          | X   |     | X    |        | RDF*   | Sparql Query endpoint | 
+| /{kb}/sparql/cache    | X   |     |      | X      | json   | sparql cache management |
+| /{kb}/sparql/update   |     |     | X    |        | RDF*   | Sparql Update endpoint |
+| /{kb}/queries         | X   |     |      |        | csv    | queries list management |
+| /{kb}/querystore      | X   |     |      |        | RDF*   | querystore management |
+| /{kb}/query/{queryId} | X   |     |      |        | RDF*   | generic query by id  management |
+| /{kb}/table/{dbId}/{tableId}.{_format} | X   |     |      |        |  depending from extension       | tabular data  management |
+| /{kb}/graphstore      | X   |     |      |        | RDF*   | graphstore management |
+| /{kb}/graph/{dbId}/{graphId}.{_rdfFormat} | X   |     |      |        |  depending from extension       | linked data  management |
+
+# Ingestion APIs
+
+| Resource              | GET | PUT | POST | DELETE | Returns | Service Description |
+|-----------------------|-----|-----|------|--------|--------|---------------------|
+| /{kb}/activities      | X   |     | X    | X      | csv    | data ingestion planning and monitoring |
+| /{kb}/activity/{id}   | X   |     |      | X      | RDF*   | data ingestion activity report |
+| /{kb}/activity/{id}.html   | X   |     |      |       | HTML   | formatted data ingestion activity report document |
+
+
+## Knowledge Base configuration [/{kb}]
 
 This API allows to set/modify and delete a Knowledge Base and its configuration.
 
@@ -98,10 +117,6 @@ This API allows to set/modify and delete a Knowledge Base and its configuration.
 Returns the knowledge base configuration as an RDF document.
 
 + Request (text/turtle)
-
-    + Headers
-    
-            Accept: text/turtle
             
 + Response 200
 
@@ -109,7 +124,7 @@ Returns the knowledge base configuration as an RDF document.
     + Body
     
             @prefix kees: <http://linkeddata.center/kees/v1#> .
-            [] kees:source <http://data.example.com/file1.ttl> .
+            [] kees:source <http://linkeddata.center/project/kees/master/v1/introspection.ttl> .
 
 
 ### Change Knowledge Base configuration [PUT]
@@ -127,69 +142,17 @@ values are inferred from kees ontology restrictions and axioms.
             
 + Response 200
 
-    + Body
-    
-            true
-
             
 ### Empty the Knowledge Base [DELETE]
 
 This API delete knowledge base configuration. It is equivalent to a call to
 *sparql/update* with command: DROP SILENT ALL 
 
-+ Response 200 (text/boolean)
-
-    + Body
-    
-            true
-
-
-## Knowledge Base version management [/{kb}/version]
-
-Knowledge Base has a version id, the version id change after a SPARQL update or after a
-new data ingestion cycle. This API allows to manage Knowlege Base versions.
-
-+ Parameters
-    + kb (required, string, `demo`) ... `id` of the Knowlege base  
-
-### Get Knowledge Base version id [GET]
-
-Returns the current knowledge base version id. The version id is an unix time stamp
-relatetd to the last knowlege base update action.
-
-            
-+ Response 200 (text/plain)
-
-
-    + Body
-    
-            1428123456
++ Response 200
 
 
 
-### Change Knowledge Base version id [PUT]
-
-Substitute the knowledge base version id with the request body content. This action is equivalet 
-to create a new knowlege base configuration specifying a <http://purl.org/dc/terms/identifier>
-attribute.
-
-This request forces internal caches to be revalidated.
-
-+ Request (text/plain)
-            
-    + Body
-
-            1428123457    
-            
-+ Response 200 (text/boolean)
-
-    + Body
-    
-            true
-
-            
-
-## SPARQL 1.1 Query [/{kb}/sparql{?query}]
+## SPARQL Query [/{kb}/sparql{?query}]
 
 This API implements [SPARQL 1.1 protocol query operations](http://www.w3.org/TR/sparql11-protocol/#query-operation) 
 for [query language](http://www.w3.org/TR/sparql11-query/) specifications.
@@ -198,7 +161,7 @@ Fully supports [http content negotiation](http://en.wikipedia.org/wiki/Content_n
 for state representation rendering.
 
 All HTTP requests that are mutative (add or remove) must include a valid Content-Type header set to the MIME type of the request body,
- where “valid” is a valid MIME type for N-Triples(text/plain), Turtle (application/x-turtle or text/turtle), NQuads (text/x-nquads), JSON-LD(application/ld+json), or RDF/XML (application/rdf+xml).
+ where “valid” is a valid MIME type for N-Triples(text/plain), Turtle (application/x-turtle or text/turtle),  JSON-LD(application/ld+json), or RDF/XML (application/rdf+xml).
  
 Depending from SPARQL query, following MIME types are recognized in the Accept header, for example:
 
@@ -251,7 +214,7 @@ To get Service description call the end-point withouth any paramethers
             
 + Response 200
 
-    [SPARQL 1.1 Query][]
+    [SPARQL Query][]
 
 
 
@@ -277,11 +240,11 @@ It supports also unencoded paylout when  Content-Type header is set to "applicat
             
 + Response 200
 
-    [SPARQL 1.1 Query][]
+    [SPARQL Query][]
 
 
 
-## SPARQL 1.1 Update [/{kb}/sparql/update]
+## SPARQL Update [/{kb}/sparql/update]
 
 This API implements [SPARQL 1.1 protocol update operations](http://www.w3.org/TR/sparql11-protocol/#update-operation) 
 for [update language](http://www.w3.org/TR/sparql11-update/) specifications.
@@ -296,59 +259,8 @@ All HTTP requests that are mutative (add or remove) must include a valid Content
     + kb (required, string, `demo`) ... `id` of the Knowlege base  
 
 
-### SPARQL update via get [GET]
-
-This verbs supports [Service Description](http://www.w3.org/TR/sparql11-service-description/) specification.
-
-+ Request
-
-    + Headers
-    
-            Accept: text/turtle
-            
-+ Response 200
-
-            _:node19hbsroj2x226 a <http://www.w3.org/ns/sparql-service-description#Service> ;
-                <http://www.w3.org/ns/sparql-service-description#endpoint> "https://hub1.linkeddata.center/test/sparql/update" ;
-                <http://www.w3.org/ns/sparql-service-description#supportedLanguage> <http://www.w3.org/ns/sparql-service-description#SPARQL11Update> ;
-                <http://www.w3.org/ns/sparql-service-description#defaultEntailmentRegime> <http://www.w3.org/ns/entailment/OWL-Direct> ;
-                <http://www.w3.org/ns/sparql-service-description#supportedEntailmentProfile> <http://www.w3.org/ns/owl-profile/RDFS> , <http://www.w3.org/ns/owl-profile/QL> , <http://www.w3.org/ns/owl-profile/RL> , <http://www.w3.org/ns/owl-profile/EL> , <http://www.w3.org/ns/owl-profile/DL> ;
-                <http://www.w3.org/ns/sparql-service-description#inputFormat> <http://www.w3.org/ns/formats/RDF_XML> ;
-                <http://www.w3.org/ns/sparql-service-description#resultFormat> <http://www.w3.org/ns/formats/RDF_XML> ;
-                <http://www.w3.org/ns/sparql-service-description#inputFormat> <http://www.w3.org/ns/formats/Turtle> ;
-                <http://www.w3.org/ns/sparql-service-description#resultFormat> <http://www.w3.org/ns/formats/Turtle> ;
-                <http://www.w3.org/ns/sparql-service-description#inputFormat> <http://www.w3.org/ns/formats/N3> ;
-                <http://www.w3.org/ns/sparql-service-description#resultFormat> <http://www.w3.org/ns/formats/N3> ;
-                <http://www.w3.org/ns/sparql-service-description#inputFormat> <http://www.w3.org/ns/formats/N_Triples> ;
-                <http://www.w3.org/ns/sparql-service-description#resultFormat> <http://www.w3.org/ns/formats/N_Triples> ;
-                <http://www.w3.org/ns/sparql-service-description#inputFormat> <http://www.w3.org/ns/formats/NQuads> ;
-                <http://www.w3.org/ns/sparql-service-description#resultFormat> <http://www.w3.org/ns/formats/NQuads> ;
-                <http://www.w3.org/ns/sparql-service-description#inputFormat> <http://www.w3.org/ns/formats/Trig> ;
-                <http://www.w3.org/ns/sparql-service-description#resultFormat> <http://www.w3.org/ns/formats/Trig> ;
-                <http://www.w3.org/ns/sparql-service-description#inputFormat> <http://www.w3.org/ns/formats/Trix> ;
-                <http://www.w3.org/ns/sparql-service-description#resultFormat> <http://www.w3.org/ns/formats/Trix> ;
-                <http://www.w3.org/ns/sparql-service-description#inputFormat> <http://www.w3.org/ns/formats/JSON_LD> ;
-                <http://www.w3.org/ns/sparql-service-description#resultFormat> <http://www.w3.org/ns/formats/JSON_LD> , <http://www.w3.org/ns/formats/SPARQL_Results_XML> , <http://www.w3.org/ns/formats/SPARQL_Results_JSON> , <http://www.w3.org/ns/formats/SPARQL_Results_CSV> , <http://www.w3.org/ns/formats/SPARQL_Results_TSV> ;
-                <http://www.w3.org/ns/sparql-service-description#extensionFunction> <http://jena.hpl.hp.com/ARQ/property#textMatch> ;
-            
-            _:node19hbsroj2x227 a <http://www.w3.org/ns/sparql-service-description#Dataset> .
-            
-            _:node19hbsroj2x228 a <http://www.w3.org/ns/sparql-service-description#Graph> ;
-                <http://rdfs.org/ns/void#triples> "0"^^<http://www.w3.org/2001/XMLSchema#long> .
-            
-            _:node19hbsroj2x227 <http://www.w3.org/ns/sparql-service-description#defaultGraph> _:node19hbsroj2x228 .
-            
-            _:node19hbsroj2x229 a <http://www.w3.org/ns/sparql-service-description#Graph> ;
-                <http://www.w3.org/ns/sparql-service-description#name> <urn:kees> ;
-                <http://rdfs.org/ns/void#triples> "0"^^<http://www.w3.org/2001/XMLSchema#long> .
-            
-            _:node19hbsroj2x227 <http://www.w3.org/ns/sparql-service-description#namedGraph> _:node19hbsroj2x229 .
-            
-            _:node19hbsroj2x226 <http://www.w3.org/ns/sparql-service-description#defaultDataset> _:node19hbsroj2x227 .
-
-
 ### SPARQL update via post [POST]
-The body of the request should be same form-encoded parameters of the GET variant.
+The body of the request should be same form-encoded parameters of the SPARQL Query  variant.
 
 It supports also unencoded paylout when  Content-Type header is set to "application/sparql-update"
 
@@ -378,7 +290,7 @@ It supports also unencoded paylout when  Content-Type header is set to "applicat
 
 
 
-## Data ingestion activity management [/{kb}/activities{?filter}]
+## Data ingestion activity management [/{kb}/activities]
 
 This API allows to populate the knowledge base by driving all four KEES windows 
 (Booting, Learning and Reasoning) . 
@@ -397,19 +309,6 @@ By default, ingestion activity reports are retained for one day before to be pur
 ### List activities [GET]
 Lists ingestion activities with their status (pending, running, complete, etc). 
 
-+ Parameters
-    + filter (optional, string, `running`) ... show only task in a defined status.
-    
-        + Values
-            + `all`
-            + `pending`
-            + `running`
-            + `completed`
-            + `rejected`
-            + `staled`
-            + `error`
-            + `tobepurged`
-
 
 
 + Response 200 
@@ -426,45 +325,29 @@ Lists ingestion activities with their status (pending, running, complete, etc).
 ### Start a data ingestion activity [POST]
 Ask for a new kees cycle to be executed as soon as possible.
 
-Accepts following x-www-form-urlencoded vars:
+Accepts "plan" x-www-form-urlencoded var with one of following values: "learning => reasoning"(default),
+"booting => learning => reasoning", "booting"
 
-| var       | default| type              | description                         |
-|-----------|------- |-------------------|-------------------------------------|
-| booting   | false  | 'true' or 'false' | Request booting window processing   |
-| learning  | true   | 'true' or 'false' | Request learning window processing  |
-| reasoning | true   | 'true' or 'false' | Request reasoning window processing |
 
 + Request (application/x-www-form-urlencoded)
 
     + Body
 
-            booting=false&learning=true&reasoning=true
+            plan=learning => reasoning
         
-+ Response 200
-            
-    + Body
++ Response 201
+
+    + Headers
     
-            true
+            Location: activty/5524e9cd08584
+            
 
 ### Delete data ingestion activities [DELETE]
 
 Deletes all pending tasks. With no parameters delete activities that have to be purged. 
 
-+ Parameters
-    + filter (optional, string, `tobepurged`) ... delete only task in a defined status.
-    
-        + Values
-            + `all`
-            + `pending`
-            + `running`
-            + `complete`
-            + `tobepurged`
-
-
             
 + Response 200
-
-        true
 
 
 ## Ingestion activity [/{kb}/activity/{activityId}]
@@ -490,7 +373,6 @@ Deletes the activity ingestion report graph.
 
 + Response 200
 
-        true
 
 
 ## User management [/{kb}/user/{user}/pwd]
@@ -520,7 +402,3 @@ Changes the password of the knowledge admin user.
             Newpassword#1
             
 + Response 200
-
-    + Body
-    
-            true
