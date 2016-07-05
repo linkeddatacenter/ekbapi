@@ -151,6 +151,155 @@ This API delete knowledge base configuration. It is equivalent to a call to
 + Response 200
 
 
+## Knowledge Base locking [/{kb}/lock]
+
+This API allows to set/modify and delete a Knowledge Base locks.
+
++ Parameters
+    + kb (required, string, `demo`) ... `id` of the Knowlege base  
+
+### Get Knowledge Base lock status [GET]
+
+Returns the knowledge base lock status.
+
+            
++ Response 200 (application/json)
+
+
+    + Body
+    
+            {"id":"demo","locked":false}
+
+
+### Set a lock to the Knowledge Base [PUT]
+
+Tries to set a lock to knowledge base and returns the knowledge base lock status.
+            
++ Response 200 (application/json)
+
+
+    + Body
+    
+            {"id":"demo","locked":true}
+
+### Remove any Knowledge Base locks [DELETE]
+
+Remove any lock to Knowledge base  and returns the knowledge base lock status.
+            
++ Response 200 (application/json)
+
+
+    + Body
+    
+            {"id":"demo","locked":false}
+
+
+## Knowledge Base profile management [/{kb}/profile]
+
+This API allows to set/modify and delete a Knowledge Base profile definition.
+
++ Parameters
+    + kb (required, string, `demo`) ... `id` of the Knowlege base  
+
+### Get Knowledge Base profile [GET]
+
+Returns the knowledge base profile.
+
+            
++ Response 200 (application/json)
+
+
+    + Body
+    
+            {
+              "driverArgs": {
+                "endpointTemplate": "http://{user}:{password}@sd1.linkeddata.center:5820/{kbid}/query",
+                "timeout": 600
+              },
+              "isPublic": true,
+              "isReadonly": true,
+              "ingestionAgencyEndpoint": "",
+              "driver": "Sparql11",
+              "provider": "config",
+              "vars": {
+                "user": "demo",
+                "password": "****",
+                "kbid": "demo"
+              }
+            }
+
+
+### Set Knowledge Base profile [PUT]
+
+Sets the knowledge base profile.
+            
++ Request (application/json)
+
+    + Body
+    
+            {
+              "driverArgs": {
+                "endpointTemplate": "http://{user}:{password}@sd1.linkeddata.center:5820/{kbid}/query",
+                "timeout": 600
+              },
+              "isPublic": true,
+              "isReadonly": true,
+              "ingestionAgencyEndpoint": "",
+              "driver": "Sparql11",
+              "provider": "config",
+              "vars": {
+                "user": "demo",
+                "password": "****",
+                "kbid": "demo"
+              }
+            }
+
+
++ Response 200
+
+## Knowledge Base profile cache management [/{kb}/profile/cache]
+
+This API allows to delete the cache about Knowledge Base profile (debug purpose).
+
++ Parameters
+    + kb (required, string, `demo`) ... `id` of the Knowlege base  
+
+### Invalidate Knowledge Base profile cache [DELETE]
+
+Empty knowledge base profile cache,
+
+            
++ Response 200
+
+
+## User management [/{kb}/user/{user}/pwd]
+
+This API allows to change the user profile used for authentication.
+
++ Authorization ... [Base64](http://en.wikipedia.org/wiki/Base64) encoded string literal in form _"username:password"_ preceeded by authorization method and its space.
+
++ Parameters
+    + kb (required, string, `demo`) ... `id` of the user (same as Knowlege base kb) 
+    + user (required, string, `demo`) ... `id` of the user (same as Knowlege base kb)
+
+### Change user password [PUT]
+Changes the password of the knowledge admin user.
+
+*Password requirements*:
+   at least 6 characters and maximum of 20,
+   must contains one digit from 0-9,
+   must contains one lowercase characters,
+   must contains one uppercase characters,
+   must contains one special symbols in the list **@#$%**.
+   
++ Request
+
+    + Body
+    
+            Newpassword#1
+            
++ Response 200
+
 
 ## SPARQL Query [/{kb}/sparql{?query}]
 
@@ -277,17 +426,6 @@ It supports also unencoded paylout when  Content-Type header is set to "applicat
             
 + Response 200
 
-    See [SPARQL Query Results XML Format](http://www.w3.org/TR/rdf-sparql-XMLres/) for more info.
-            
-    + Body
-
-            <?xml version='1.0' encoding='UTF-8'?>
-            <sparql xmlns='http://www.w3.org/2005/sparql-results#'>
-                <head>
-                </head>
-                <boolean>true</boolean>
-            </sparql>
-
 
 
 ## Data ingestion activity management [/{kb}/activities]
@@ -310,16 +448,57 @@ By default, ingestion activity reports are retained for one day before to be pur
 Lists ingestion activities with their status (pending, running, complete, etc). 
 
 
++ Response 200 (application/json)
 
-+ Response 200 
-            
     + Body
     
-            +-----------+-----------------+-------------------------+
-            | ?status   | ?activity       | ?plannedTasks           |
-            +-----------+-----------------+-------------------------+
-            | "pending" | "5524e9cd08584" | "learning => reasoning" |
-            +-----------+-----------------+-------------------------+
+            {
+              "head": {
+                "vars": [
+                  "activityId",
+                  "keesCycle",
+                  "status",
+                  "submittedOn",
+                  "started",
+                  "ended"
+                ]
+              },
+              "results": {
+                "bindings": [
+                  {
+                    "submittedOn": {
+                      "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+                      "type": "literal",
+                      "value": "2016-02-28T22:27:21Z"
+                    },
+                    "status": {
+                      "type": "literal",
+                      "value": "completed"
+                    },
+                    "started": {
+                      "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+                      "type": "literal",
+                      "value": "2016-02-28T22:27:21Z"
+                    },
+                    "ended": {
+                      "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+                      "type": "literal",
+                      "value": "2016-02-28T22:32:25Z"
+                    },
+                    "activityId": {
+                      "type": "literal",
+                      "value": "56d374499cbfd"
+                    },
+                    "keesCycle": {
+                      "type": "literal",
+                      "value": "booting => learning => reasoning"
+                    }
+                  }
+                ]
+              }
+            }
+    
+
 
 
 ### Start a data ingestion activity [POST]
@@ -361,44 +540,33 @@ This API shows or delete a specific activity report graph.
 Display the RDF graph containg all activity ingestion report.
 
 
++ Request
+
+    + Headers
+    
+            Accept: text/turtle
+
 + Response 200 (text/turtle)
             
     + Body
-    
-            # TBD
+ 
+            @prefix kees: <http://linkeddata.center/kees/v1#> .
+            @prefix dct: <http://purl.org/dc/terms/> .
+            
+            <urn:kees:kb> kees:hasIngestionActivityReportGraph <https://hub1.linkeddata.center/demo/resource/2da666eb08f4a7b20e2c299e47999c65> .
+            
+            <https://hub1.linkeddata.center/demo/activity/56d374499cbfd> <http://www.w3.org/2000/01/rdf-schema#comment> "This document will be deleted after 2016-02-29T00:00:00+00:00." ;
+              dct:description "This document describes all activities related to the data ingestion request 56d374499cbfd submitted on 2016-02-28T22:27:21+00:00." ;
+              dct:title "Data ingestion report 56d374499cbfd" ;
+              <http://www.w3.org/ns/prov#generatedAtTime> "2016-02-28T22:27:21Z"^^<http://www.w3.org/2001/XMLSchema#dateTime> ;
+              <http://www.w3.org/ns/prov#wasAttributedTo> _:node1ackvqvr0x1 ;
+              <http://xmlns.com/foaf/0.1/primaryTopic> <https://hub1.linkeddata.center/demo/resource/56d374499ccec> .
+            .... other rdf statemenst here
+
+
 
 
 ### Delete activity [DELETE]
 Deletes the activity ingestion report graph. 
 
-+ Response 200
-
-
-
-## User management [/{kb}/user/{user}/pwd]
-
-This API allows to change the user profile used for authentication.
-
-+ Authorization ... [Base64](http://en.wikipedia.org/wiki/Base64) encoded string literal in form _"username:password"_ preceeded by authorization method and its space.
-
-+ Parameters
-    + kb (required, string, `demo`) ... `id` of the user (same as Knowlege base kb) 
-    + user (required, string, `admin`) ... `id` of the user (same as Knowlege base kb)
-
-### Change user password [PUT]
-Changes the password of the knowledge admin user.
-
-*Password requirements*:
-   at least 6 characters and maximum of 20,
-   must contains one digit from 0-9,
-   must contains one lowercase characters,
-   must contains one uppercase characters,
-   must contains one special symbols in the list **@#$%**.
-   
-+ Request
-
-    + Body
-    
-            Newpassword#1
-            
 + Response 200
