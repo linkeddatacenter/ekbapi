@@ -3,7 +3,6 @@ FORMAT: 1A
 # eKB APIs for LinkedData.Center
 [![LinkedData.Center logo](http://LinkedData.Center/home/images/logo.png)](http://linkeddata.center/)
 
-# Overview
 
 eKB is a set of RESTful APIs designed by [LinkedData.Center](http://LinkedData.Center/) to populate and
 query a knowledge base compliant with the [Semantic Web](http://www.w3.org/standards/semanticweb/) technologies. 
@@ -13,13 +12,64 @@ of named graphs. The union of all named graphs are refered as **knowledge base**
 
 eKB APIs recognize a *Knowledge Base Configuration* described with the [KEES Language Profile](http://LinkedData.Center/kees). 
 
-A minimal KB configuration is like this example:
+A knowledge base configuration contains:
 
-    @prefix kees: <http://linkeddata.center/kees/v1#> .
-    [] kees:source <http://linkeddata.center/project/kees/master/v1/introspection.ttl> .
+    1) a set of ingestion policies that describe how to populate named graphs
+    2) a set of inference rules
+    3) a set of predefined parametric queries
+
+The knowlege base configuration can include other configurations and can be shared with other KB.
+
+A minimal KB configuration is something like this example:
+
+        @prefix kees: <http://linkeddata.center/kees/v1#> .
+        [] kees:source <http://linkeddata.center/project/kees/master/v1/introspection.ttl> .
 
 See [more examples of configuration description in this article](http://linkeddata.center/help/devop/kees-profile).    
-    
+
+Beside configuration, the *knowledge base profile* define the RDF storage engine driver, acls and other tecnical parameters.
+
+
+## Accellerated knowledge base access APIs
+
+These APIs allow to access the knowledge base with an aggressive private cache management. 
+Depending from your knowledge base profile some APIs can be unavailable.
+
+| Resource              | GET | PUT | POST | DELETE | Returns | Service Description |
+|-----------------------|-----|-----|------|--------|--------|---------------------|
+| /{kb}/sparql          | X   |     | X    |        | RDF   | Sparql Query endpoint | 
+| /{kb}/sparql/update   |     |     | X    |        | RDF   | Sparql Update endpoint |
+| /{kb}/queries         | X   |     |      |        | RDF   | queries list management |
+| /{kb}/querystore      | X   |     |      |        | RDF   | querystore management |
+| /{kb}/query/{queryId} | X   |     |      |        | RDF   | generic query by id  management |
+| /{kb}/table/{dbId}/{tableId}.{_format} | X   |     |      |        |  depending from extension       | tabular data  management |
+| /{kb}/graphstore      | X   |     |      |        | RDF   | graphstore management |
+
+## Automated ingestion APIs
+
+Thess APIs allow you to request to run an *ingestion agent* that keeps the knowledge base updated 
+according with the knowledge base configuration. 
+The requested ingestion activities are execute asincronoulsy.
+
+| Resource              | GET | PUT | POST | DELETE | Returns | Service Description |
+|-----------------------|-----|-----|------|--------|--------|---------------------|
+| /{kb}/activities      | X   |     | X    | X      | RDF   | data ingestion planning and monitoring |
+| /{kb}/activity/{id}   | X   |     |      | X      | RDF   | data ingestion activity report |
+
+
+## Management APIs
+These APIs allow to manage the knowledge base configuration, profile cache and users.
+
+| Resource              | GET | PUT | POST | DELETE | Returns | Service Description |
+|-----------------------|-----|-----|------|--------|--------|---------------------|
+| /{kb}                 | X   | X   |      | X      | RDF   | Knowledge configuration |
+| /{kb}/lock            | X   | X   |      | X      | json   | KB guard management |
+| /{kb}/profile         | X   |     |      |        | json   | KB profile management |
+| /{kb}/profile/cache   |     |     |      | X      | json   | KB profile cache management |
+| /{kb}/sparql/cache    | X   |     |      | X      | json   | sparql cache management |
+| /{kb}/user/{user}/pwd |     | X   |      |        | json   | user password management |
+
+
 ## Autentication
 
 To access eKB APIs you always need to provide your LinkedData.Center credentials using
@@ -72,37 +122,307 @@ In such cases, any access to the endpoint receives a 503 error (Service Unavaila
 
 The lock APIs set and remove guard locks.
 
-# Management APIs
 
-| Resource              | GET | PUT | POST | DELETE | Returns | Service Description |
-|-----------------------|-----|-----|------|--------|--------|---------------------|
-| /{kb}                 | X   | X   |      | X      | RDF*   | Knowledge configuration |
-| /{kb}/lock            | X   | X   |      | X      | json   | KB guard management |
-| /{kb}/profile         | X   |     |      |        | json   | KB profile management |
-| /{kb}/profile/cache   |     |     |      | X      | json   | KB profile cache management |
-| /{kb}/user/{user}/pwd |     | X   |      |        | json   | user password management |
 
-# Accellerated APIs
+## SPARQL Query [/{kb}/sparql{?query}]
 
-| Resource              | GET | PUT | POST | DELETE | Returns | Service Description |
-|-----------------------|-----|-----|------|--------|--------|---------------------|
-| /{kb}/sparql          | X   |     | X    |        | RDF*   | Sparql Query endpoint | 
-| /{kb}/sparql/cache    | X   |     |      | X      | json   | sparql cache management |
-| /{kb}/sparql/update   |     |     | X    |        | RDF*   | Sparql Update endpoint |
-| /{kb}/queries         | X   |     |      |        | csv    | queries list management |
-| /{kb}/querystore      | X   |     |      |        | RDF*   | querystore management |
-| /{kb}/query/{queryId} | X   |     |      |        | RDF*   | generic query by id  management |
-| /{kb}/table/{dbId}/{tableId}.{_format} | X   |     |      |        |  depending from extension       | tabular data  management |
-| /{kb}/graphstore      | X   |     |      |        | RDF*   | graphstore management |
-| /{kb}/graph/{dbId}/{graphId}.{_rdfFormat} | X   |     |      |        |  depending from extension       | linked data  management |
+This API implements [SPARQL 1.1 protocol query operations](http://www.w3.org/TR/sparql11-protocol/#query-operation) 
+for [query language](http://www.w3.org/TR/sparql11-query/) specifications.
 
-# Ingestion APIs
+Fully supports [http content negotiation](http://en.wikipedia.org/wiki/Content_negotiation)
+for state representation rendering.
 
-| Resource              | GET | PUT | POST | DELETE | Returns | Service Description |
-|-----------------------|-----|-----|------|--------|--------|---------------------|
-| /{kb}/activities      | X   |     | X    | X      | csv    | data ingestion planning and monitoring |
-| /{kb}/activity/{id}   | X   |     |      | X      | RDF*   | data ingestion activity report |
-| /{kb}/activity/{id}.html   | X   |     |      |       | HTML   | formatted data ingestion activity report document |
+All HTTP requests that are mutative (add or remove) must include a valid Content-Type header set to the MIME type of the request body,
+ where “valid” is a valid MIME type for N-Triples(text/plain), Turtle (application/x-turtle or text/turtle),  JSON-LD(application/ld+json), or RDF/XML (application/rdf+xml).
+ 
+Depending from SPARQL query, following MIME types are recognized in the Accept header, for example:
+
+| Query type | Supported MIMETYPE in Accept header                                                                |
+|------------|----------------------------------------------------------------------------------------------------|
+| SELECT or ASK    | application/sparql-results+xml OR application/sparql-results+json                                  |
+| CONSTRUCT or DESCRIBE | application/rdf+xml OR text/turtle OR application/x-turtle OR text/x-nquads OR application/ld+json |
+
+
+Please note that the *defaut graph* behaviour is not specified in sparql 1.1,
+so some RDF quadstore engines treat it as the union of all named graph, other engines just as an
+unamed graph. To keep maximum compatibility **the default graph should not be used**.
+
++ Parameters
+    + kb (required, string, `demo`) ... `id` of the Knowlege base  
+
+
++ Model (application/sparql-results+xml)
+
+    See [SPARQL Query Results XML Format](http://www.w3.org/TR/rdf-sparql-XMLres/) for more info.
+            
+    + Body
+
+            <?xml version='1.0' encoding='UTF-8'?>
+            <sparql xmlns='http://www.w3.org/2005/sparql-results#'>
+                <head>
+                    <variable name='s'/>
+                    <variable name='p'/>
+                    <variable name='o'/>
+                </head>
+                <results>
+                </results>
+            </sparql> 
+
+### SPARQL query via get [GET]
+
+It supports both Sparql Query and 
+[Service Description](http://www.w3.org/TR/sparql11-service-description/) protocols.
+
+To get Service description call the end-point withouth any paramethers
+
++ Parameters
+    + query (optional, string, `SELECT%20*%20WHERE%20%7B%3Fs%20%3Fp%20%3Fo%7D`) ... url encoded sparql query.
+
++ Request
+
+    + Headers
+    
+            Accept: application/sparql-results+xml
+            
++ Response 200
+
+    [SPARQL Query][]
+
+
+
+### SPARQL query via post [POST]
+Post action can be used for queries whose length exceeds the maximum allowed number of characters in a URI.
+The body of the request should be same form-encoded parameters of the GET variant.
+
+It supports also unencoded paylout when  Content-Type header is set to "application/sparql-query"
+
+
+
++ Request (application/sparql-query)
+
+    + Headers
+    
+            Accept: application/sparql-results+xml
+
+    + Body
+
+            SELECT * WHERE {
+                ?s ?p ?o
+            } LIMIT 10
+            
++ Response 200
+
+    [SPARQL Query][]
+
+
+## SPARQL Query cache management [/{kb}/sparql/cache]
+
+EKB implements a strong sparql private cache management. Cache is optimized to
+work with automated ingestion APIs. These APIs allow to control sparql cache.
+
+
++ Parameters
+    + kb (required, string, `demo`) ... `id` of the Knowlege base  
+    
+    
+### Get sparql cache status [GET]
+
+Returns sparql cache size and the time used to compute it.
+
+
++ Response 200 (application/json)
+
+    + Body
+
+            {
+              "totalSize": 520847,
+              "elapsedTime": 0.010123014450073
+            }  
+
+
+### Invalidate sparql cache [DELETE]
+Erase the sparql cache to clean  disk storage.
+
+
++ Response 200
+
+
+## SPARQL Update [/{kb}/sparql/update]
+
+This API implements [SPARQL 1.1 protocol update operations](http://www.w3.org/TR/sparql11-protocol/#update-operation) 
+for [update language](http://www.w3.org/TR/sparql11-update/) specifications.
+
+SPARQL update endpoint support [http content negotiation](http://en.wikipedia.org/wiki/Content_negotiation) for state representation rendering.
+
+All HTTP requests that are mutative (add or remove) must include a valid Content-Type header set to the MIME type of the request body,
+ where “valid” is a valid MIME type for application/sparql-results+xml OR text/boolean .
+
+
++ Parameters
+    + kb (required, string, `demo`) ... `id` of the Knowlege base  
+
+
+### SPARQL update via post [POST]
+The body of the request should be same form-encoded parameters of the SPARQL Query  variant.
+
+It supports also unencoded paylout when  Content-Type header is set to "application/sparql-update"
+
++ Parameters
+    + update (optional, string, `DROP%20ALL`) ... url encoded sparql query.
+
+
+
++ Request (application/sparql-update)
+
+    + Body
+
+            DROP ALL
+            
++ Response 200
+
+
+
+## Data ingestion activities management [/{kb}/activities]
+
+This API allows to populate the knowledge base by driving all four KEES windows 
+(Booting, Learning and Reasoning) . 
+
+Ingestion tasks are executed asyncronusly as soon as there are enough 
+resources available in the system.
+
+Each ingestion activity is provided with an unique id in the knowledge base. 
+The activity state can be inspected before, after and during execution.
+Ingestion activity reports are stored in named graphs.
+By default, ingestion activity reports are retained for one day before to be purged.
+
++ Authorization ... [Base64](http://en.wikipedia.org/wiki/Base64) encoded string literal in form _"username:password"_ preceeded by authorization method and its space.
+
+
+### List activities [GET]
+Lists ingestion activities with their status (pending, running, complete, etc). 
+
+
++ Response 200 (application/json)
+
+    + Body
+    
+            {
+              "head": {
+                "vars": [
+                  "activityId",
+                  "keesCycle",
+                  "status",
+                  "submittedOn",
+                  "started",
+                  "ended"
+                ]
+              },
+              "results": {
+                "bindings": [
+                  {
+                    "submittedOn": {
+                      "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+                      "type": "literal",
+                      "value": "2016-02-28T22:27:21Z"
+                    },
+                    "status": {
+                      "type": "literal",
+                      "value": "completed"
+                    },
+                    "started": {
+                      "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+                      "type": "literal",
+                      "value": "2016-02-28T22:27:21Z"
+                    },
+                    "ended": {
+                      "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
+                      "type": "literal",
+                      "value": "2016-02-28T22:32:25Z"
+                    },
+                    "activityId": {
+                      "type": "literal",
+                      "value": "56d374499cbfd"
+                    },
+                    "keesCycle": {
+                      "type": "literal",
+                      "value": "booting => learning => reasoning"
+                    }
+                  }
+                ]
+              }
+            }
+    
+
+
+### Request a data ingestion activity [POST]
+Ask for a new kees cycle to be executed as soon as possible.
+
+Accepts "plan" x-www-form-urlencoded var with one of following values: "learning => reasoning"(default),
+"booting => learning => reasoning", "booting"
+
+
++ Request (application/x-www-form-urlencoded)
+
+    + Body
+
+            plan=learning => reasoning
+        
++ Response 201
+
+    + Headers
+    
+            Location: activty/5524e9cd08584
+            
+
+### Delete all data ingestion activity reports [DELETE]
+
+Deletes all pending tasks. With no parameters delete activities that have to be purged. 
+
+            
++ Response 200
+
+
+## Ingestion activity report [/{kb}/activity/{activityId}]
+
+This API shows or delete a specific activity report graph. 
+
++ Authorization ... [Base64](http://en.wikipedia.org/wiki/Base64) encoded string literal in form _"username:password"_ preceeded by authorization method and its space.
+
+
+### Show activity report [GET]
+Display the RDF graph containg all activity ingestion report.
+
+
++ Request
+
+    + Headers
+    
+            Accept: text/turtle
+
++ Response 200 (text/turtle)
+            
+    + Body
+ 
+            @prefix kees: <http://linkeddata.center/kees/v1#> .
+            @prefix dct: <http://purl.org/dc/terms/> .
+            
+            <urn:kees:kb> kees:hasIngestionActivityReportGraph <https://hub1.linkeddata.center/demo/resource/2da666eb08f4a7b20e2c299e47999c65> .
+            
+            <https://hub1.linkeddata.center/demo/activity/56d374499cbfd> <http://www.w3.org/2000/01/rdf-schema#comment> "This document will be deleted after 2016-02-29T00:00:00+00:00." ;
+              dct:description "This document describes all activities related to the data ingestion request 56d374499cbfd submitted on 2016-02-28T22:27:21+00:00." ;
+              dct:title "Data ingestion report 56d374499cbfd" ;
+              <http://www.w3.org/ns/prov#generatedAtTime> "2016-02-28T22:27:21Z"^^<http://www.w3.org/2001/XMLSchema#dateTime> ;
+              <http://www.w3.org/ns/prov#wasAttributedTo> _:node1ackvqvr0x1 ;
+              <http://xmlns.com/foaf/0.1/primaryTopic> <https://hub1.linkeddata.center/demo/resource/56d374499ccec> .
+            .... other rdf statemenst here
+
+
+
+
+### Delete activity report [DELETE]
+Deletes the activity ingestion report graph. 
+
++ Response 200
 
 
 ## Knowledge Base configuration [/{kb}]
@@ -298,275 +618,4 @@ Changes the password of the knowledge admin user.
     
             Newpassword#1
             
-+ Response 200
-
-
-## SPARQL Query [/{kb}/sparql{?query}]
-
-This API implements [SPARQL 1.1 protocol query operations](http://www.w3.org/TR/sparql11-protocol/#query-operation) 
-for [query language](http://www.w3.org/TR/sparql11-query/) specifications.
-
-Fully supports [http content negotiation](http://en.wikipedia.org/wiki/Content_negotiation)
-for state representation rendering.
-
-All HTTP requests that are mutative (add or remove) must include a valid Content-Type header set to the MIME type of the request body,
- where “valid” is a valid MIME type for N-Triples(text/plain), Turtle (application/x-turtle or text/turtle),  JSON-LD(application/ld+json), or RDF/XML (application/rdf+xml).
- 
-Depending from SPARQL query, following MIME types are recognized in the Accept header, for example:
-
-| Query type | Supported MIMETYPE in Accept header                                                                |
-|------------|----------------------------------------------------------------------------------------------------|
-| SELECT or ASK    | application/sparql-results+xml OR application/sparql-results+json                                  |
-| CONSTRUCT or DESCRIBE | application/rdf+xml OR text/turtle OR application/x-turtle OR text/x-nquads OR application/ld+json |
-
-
-Please note that the *defaut graph* behaviour is not specified in sparql 1.1,
-so some RDF quadstore engines treat it as the union of all named graph, other engines just as an
-unamed graph. To keep maximum compatibility **the default graph should not be used**.
-
-+ Parameters
-    + kb (required, string, `demo`) ... `id` of the Knowlege base  
-
-
-+ Model (application/sparql-results+xml)
-
-    See [SPARQL Query Results XML Format](http://www.w3.org/TR/rdf-sparql-XMLres/) for more info.
-            
-    + Body
-
-            <?xml version='1.0' encoding='UTF-8'?>
-            <sparql xmlns='http://www.w3.org/2005/sparql-results#'>
-                <head>
-                    <variable name='s'/>
-                    <variable name='p'/>
-                    <variable name='o'/>
-                </head>
-                <results>
-                </results>
-            </sparql> 
-
-### SPARQL query via get [GET]
-
-It supports both Sparql Query and 
-[Service Description](http://www.w3.org/TR/sparql11-service-description/) protocols.
-
-To get Service description call the end-point withouth any paramethers
-
-+ Parameters
-    + query (optional, string, `SELECT%20*%20WHERE%20%7B%3Fs%20%3Fp%20%3Fo%7D`) ... url encoded sparql query.
-
-+ Request
-
-    + Headers
-    
-            Accept: application/sparql-results+xml
-            
-+ Response 200
-
-    [SPARQL Query][]
-
-
-
-### SPARQL query via post [POST]
-Post action can be used for queries whose length exceeds the maximum allowed number of characters in a URI.
-The body of the request should be same form-encoded parameters of the GET variant.
-
-It supports also unencoded paylout when  Content-Type header is set to "application/sparql-query"
-
-
-
-+ Request (application/sparql-query)
-
-    + Headers
-    
-            Accept: application/sparql-results+xml
-
-    + Body
-
-            SELECT * WHERE {
-                ?s ?p ?o
-            } LIMIT 10
-            
-+ Response 200
-
-    [SPARQL Query][]
-
-
-
-## SPARQL Update [/{kb}/sparql/update]
-
-This API implements [SPARQL 1.1 protocol update operations](http://www.w3.org/TR/sparql11-protocol/#update-operation) 
-for [update language](http://www.w3.org/TR/sparql11-update/) specifications.
-
-SPARQL update endpoint support [http content negotiation](http://en.wikipedia.org/wiki/Content_negotiation) for state representation rendering.
-
-All HTTP requests that are mutative (add or remove) must include a valid Content-Type header set to the MIME type of the request body,
- where “valid” is a valid MIME type for application/sparql-results+xml OR text/boolean .
-
-
-+ Parameters
-    + kb (required, string, `demo`) ... `id` of the Knowlege base  
-
-
-### SPARQL update via post [POST]
-The body of the request should be same form-encoded parameters of the SPARQL Query  variant.
-
-It supports also unencoded paylout when  Content-Type header is set to "application/sparql-update"
-
-+ Parameters
-    + update (optional, string, `DROP%20ALL`) ... url encoded sparql query.
-
-
-
-+ Request (application/sparql-update)
-
-    + Body
-
-            DROP ALL
-            
-+ Response 200
-
-
-
-## Data ingestion activity management [/{kb}/activities]
-
-This API allows to populate the knowledge base by driving all four KEES windows 
-(Booting, Learning and Reasoning) . 
-
-Ingestion tasks are executed asyncronusly as soon as there are enough 
-resources available in the system.
-
-Each ingestion activity is provided with an unique id in the knowledge base. 
-The activity state can be inspected before, after and during execution.
-Ingestion activity reports are stored in named graphs.
-By default, ingestion activity reports are retained for one day before to be purged.
-
-+ Authorization ... [Base64](http://en.wikipedia.org/wiki/Base64) encoded string literal in form _"username:password"_ preceeded by authorization method and its space.
-
-
-### List activities [GET]
-Lists ingestion activities with their status (pending, running, complete, etc). 
-
-
-+ Response 200 (application/json)
-
-    + Body
-    
-            {
-              "head": {
-                "vars": [
-                  "activityId",
-                  "keesCycle",
-                  "status",
-                  "submittedOn",
-                  "started",
-                  "ended"
-                ]
-              },
-              "results": {
-                "bindings": [
-                  {
-                    "submittedOn": {
-                      "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
-                      "type": "literal",
-                      "value": "2016-02-28T22:27:21Z"
-                    },
-                    "status": {
-                      "type": "literal",
-                      "value": "completed"
-                    },
-                    "started": {
-                      "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
-                      "type": "literal",
-                      "value": "2016-02-28T22:27:21Z"
-                    },
-                    "ended": {
-                      "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
-                      "type": "literal",
-                      "value": "2016-02-28T22:32:25Z"
-                    },
-                    "activityId": {
-                      "type": "literal",
-                      "value": "56d374499cbfd"
-                    },
-                    "keesCycle": {
-                      "type": "literal",
-                      "value": "booting => learning => reasoning"
-                    }
-                  }
-                ]
-              }
-            }
-    
-
-
-
-### Start a data ingestion activity [POST]
-Ask for a new kees cycle to be executed as soon as possible.
-
-Accepts "plan" x-www-form-urlencoded var with one of following values: "learning => reasoning"(default),
-"booting => learning => reasoning", "booting"
-
-
-+ Request (application/x-www-form-urlencoded)
-
-    + Body
-
-            plan=learning => reasoning
-        
-+ Response 201
-
-    + Headers
-    
-            Location: activty/5524e9cd08584
-            
-
-### Delete data ingestion activities [DELETE]
-
-Deletes all pending tasks. With no parameters delete activities that have to be purged. 
-
-            
-+ Response 200
-
-
-## Ingestion activity [/{kb}/activity/{activityId}]
-
-This API shows or delete a specific activity report graph. 
-
-+ Authorization ... [Base64](http://en.wikipedia.org/wiki/Base64) encoded string literal in form _"username:password"_ preceeded by authorization method and its space.
-
-
-### Show activity [GET]
-Display the RDF graph containg all activity ingestion report.
-
-
-+ Request
-
-    + Headers
-    
-            Accept: text/turtle
-
-+ Response 200 (text/turtle)
-            
-    + Body
- 
-            @prefix kees: <http://linkeddata.center/kees/v1#> .
-            @prefix dct: <http://purl.org/dc/terms/> .
-            
-            <urn:kees:kb> kees:hasIngestionActivityReportGraph <https://hub1.linkeddata.center/demo/resource/2da666eb08f4a7b20e2c299e47999c65> .
-            
-            <https://hub1.linkeddata.center/demo/activity/56d374499cbfd> <http://www.w3.org/2000/01/rdf-schema#comment> "This document will be deleted after 2016-02-29T00:00:00+00:00." ;
-              dct:description "This document describes all activities related to the data ingestion request 56d374499cbfd submitted on 2016-02-28T22:27:21+00:00." ;
-              dct:title "Data ingestion report 56d374499cbfd" ;
-              <http://www.w3.org/ns/prov#generatedAtTime> "2016-02-28T22:27:21Z"^^<http://www.w3.org/2001/XMLSchema#dateTime> ;
-              <http://www.w3.org/ns/prov#wasAttributedTo> _:node1ackvqvr0x1 ;
-              <http://xmlns.com/foaf/0.1/primaryTopic> <https://hub1.linkeddata.center/demo/resource/56d374499ccec> .
-            .... other rdf statemenst here
-
-
-
-
-### Delete activity [DELETE]
-Deletes the activity ingestion report graph. 
-
 + Response 200
