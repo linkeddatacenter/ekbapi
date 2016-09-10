@@ -1,6 +1,6 @@
 FORMAT: 1A
 
-# eKB APIs for LinkedData.Center
+# eKB APIs
 [![LinkedData.Center logo](http://LinkedData.Center/home/images/logo.png)](http://linkeddata.center/)
 
 
@@ -30,6 +30,19 @@ See [more examples of configuration description in this article](http://linkedda
 Beside configuration, the *knowledge base profile* define the RDF storage engine driver, acls and other tecnical parameters.
 
 
+
+## Management APIs
+These APIs allow to manage the knowledge base configuration, profile cache and users.
+
+| Resource              | GET | PUT | POST | DELETE | Returns | Service Description |
+|-----------------------|-----|-----|------|--------|--------|---------------------|
+| /{kb}                 | X   | X   |      | X      | RDF    | Knowledge configuration |
+| /{kb}/lock            | X   | X   |      | X      | json   | KB guard management |
+| /{kb}/profile         | X   | X   |      |        | json   | KB profile management |
+| /{kb}/user/{user}/pwd |     | X   |      |        | json   | User password management |
+| /{kb}/cache           | X   |     |      | X      | json  | Cache management |
+
+
 ## Accellerated knowledge base access APIs
 
 These APIs allow to access the knowledge base with an aggressive private cache management. 
@@ -39,15 +52,17 @@ Depending from your knowledge base profile some APIs can be unavailable.
 |-----------------------|-----|-----|------|--------|--------|---------------------|
 | /{kb}/sparql          | X   |     | X    |        | RDF   | Sparql Query endpoint | 
 | /{kb}/sparql/update   |     |     | X    |        | RDF   | Sparql Update endpoint |
-| /{kb}/queries         | X   |     |      |        | RDF   | queries list management |
-| /{kb}/querystore      | X   |     |      |        | RDF   | querystore management |
-| /{kb}/query/{queryId} | X   |     |      |        | RDF   | generic query by id  management |
-| /{kb}/table/{dbId}/{tableId}.{_format} | X   |     |      |        |  depending from extension       | tabular data  management |
 | /{kb}/graphstore      | X   |     |      |        | RDF   | graphstore management |
+| /{kb}/queries         | X   |     |      |        | RDF   | Queries list |
+| /{kb}/querystore      | X   |     |      |        | RDF   | Querystore management |
+| /{kb}/table/{dbId}/{tableId}.json | X   |     |      |        |  json       | tabular data  export |
+| /{kb}/table/{dbId}/{tableId}.xml | X   |     |      |        |  xml       | tabular data  export |
+| /{kb}/table/{dbId}/{tableId}.csv | X   |     |      |        |  csv       | tabular data  export |
+
 
 ## Automated ingestion APIs
 
-Thess APIs allow you to request to run an *ingestion agent* that keeps the knowledge base updated 
+These APIs allow you to rrun an *ingestion agent* that keeps the knowledge base updated 
 according with the knowledge base configuration. 
 The requested ingestion activities are execute asincronoulsy.
 
@@ -57,17 +72,6 @@ The requested ingestion activities are execute asincronoulsy.
 | /{kb}/activity/{id}   | X   |     |      | X      | RDF   | data ingestion activity report |
 
 
-## Management APIs
-These APIs allow to manage the knowledge base configuration, profile cache and users.
-
-| Resource              | GET | PUT | POST | DELETE | Returns | Service Description |
-|-----------------------|-----|-----|------|--------|--------|---------------------|
-| /{kb}                 | X   | X   |      | X      | RDF   | Knowledge configuration |
-| /{kb}/lock            | X   | X   |      | X      | json   | KB guard management |
-| /{kb}/profile         | X   |     |      |        | json   | KB profile management |
-| /{kb}/profile/cache   |     |     |      | X      | json   | KB profile cache management |
-| /{kb}/sparql/cache    | X   |     |      | X      | json   | sparql cache management |
-| /{kb}/user/{user}/pwd |     | X   |      |        | json   | user password management |
 
 
 ## Autentication
@@ -122,6 +126,222 @@ In such cases, any access to the endpoint receives a 503 error (Service Unavaila
 
 The lock APIs set and remove guard locks.
 
+
+## Knowledge Base configuration [/{kb}]
+
+This API allows to set/modify and delete a Knowledge Base and its configuration.
+
++ Parameters
+    + kb (required, string, `demo`) ... `id` of the Knowlege base  
+
+### Get Knowledge Base configuration [GET]
+
+Returns the knowledge base configuration as an RDF document.
+
++ Request (text/turtle)
+            
++ Response 200
+
+
+    + Body
+    
+            @prefix kees: <http://linkeddata.center/kees/v1#> .
+            [] kees:source <http://linkeddata.center/project/kees/master/v1/introspection.ttl> .
+
+
+### Change Knowledge Base configuration [PUT]
+
+Substitutes the knowledge base configuration with the request body content. All missing properties and default
+values are inferred from kees ontology restrictions and axioms.
+
++ Request (text/turtle)
+            
+    + Body
+
+            @prefix kees: <http://linkeddata.center/kees/v1#> .
+            [] kees:source <http://data.example.com/file1.ttl> .
+
+            
++ Response 200
+
+            
+### Empty the Knowledge Base [DELETE]
+
+This API delete knowledge base configuration. It is equivalent to a call to
+*sparql/update* with command: DROP SILENT ALL 
+
++ Response 200
+
+
+## Knowledge Base locking [/{kb}/lock]
+
+This API allows to set/modify and delete a Knowledge Base locks.
+
++ Parameters
+    + kb (required, string, `demo`) ... `id` of the Knowlege base  
+
+### Get Knowledge Base lock status [GET]
+
+Returns the knowledge base lock status.
+
+            
++ Response 200 (application/json)
+
+
+    + Body
+    
+            {"id":"demo","locked":false}
+
+
+### Set a lock to the Knowledge Base [PUT]
+
+Tries to set a lock to knowledge base and returns the knowledge base lock status.
+            
++ Response 200 (application/json)
+
+
+    + Body
+    
+            {"id":"demo","locked":true}
+
+### Remove any Knowledge Base locks [DELETE]
+
+Remove any lock to Knowledge base  and returns the knowledge base lock status.
+            
++ Response 200 (application/json)
+
+
+    + Body
+    
+            {"id":"demo","locked":false}
+
+
+## Knowledge Base profile management [/{kb}/profile]
+
+This API allows to set/modify and delete a Knowledge Base profile definition.
+
++ Parameters
+    + kb (required, string, `demo`) ... `id` of the Knowlege base  
+
+### Get Knowledge Base profile [GET]
+
+Returns the knowledge base profile.
+
+            
++ Response 200 (application/json)
+
+
+    + Body
+    
+            {
+              "authenticationAuthority": "sparqlProcessor",
+              "driver": "Sparql11",
+              "driverArgs": {
+                "endpointTemplate": "http://{user}:{password}@sd1.linkeddata.center/{kbid}/query",
+                "timeout": 600
+              },
+              "isPublic": true,
+              "isReadonly": true,
+              "ingestionAgencyEndpoint": "",
+              "provider": "config",
+              "vars": {
+                "user": "demo",
+                "password": "****",
+                "kbid": "demo"
+              }
+            }
+
+
+### Set Knowledge Base profile [PUT]
+
+Sets the knowledge base profile.
+            
++ Request (application/json)
+
+    + Body
+    
+            {
+              "authenticationAuthority": "sparqlProcessor",
+              "driver": "Sparql11",
+              "driverArgs": {
+                "endpointTemplate": "http://{user}:{password}@sd1.linkeddata.center/{kbid}/query",
+                "timeout": 600
+              },
+              "isPublic": true,
+              "isReadonly": true,
+              "ingestionAgencyEndpoint": "",
+              "provider": "config",
+              "vars": {
+                "user": "demo",
+                "password": "****",
+                "kbid": "demo"
+              }
+            }
+
+
++ Response 200
+
+
+
+## Cache management [/{kb}/cache]
+
+EKB implements a strong  private cache management. Cache is optimized to
+work with automated ingestion APIs. These APIs allow to control sparql cache.
+
+
++ Parameters
+    + kb (required, string, `demo`) ... `id` of the Knowlege base  
+    
+    
+### Get sparql cache status [GET]
+
+Returns sparql cache size and the time used to compute it.
+
+
++ Response 200 (application/json)
+
+    + Body
+
+            {
+              "totalSize": 520847,
+              "elapsedTime": 0.010123014450073
+            }  
+
+
+### Invalidate sparql cache [DELETE]
+Erase the sparql cache to clean  disk storage.
+
+
++ Response 200
+
+
+## User management [/{kb}/user/{user}/pwd]
+
+This API allows to change the user profile used for authentication.
+
++ Authorization ... [Base64](http://en.wikipedia.org/wiki/Base64) encoded string literal in form _"username:password"_ preceeded by authorization method and its space.
+
++ Parameters
+    + kb (required, string, `demo`) ... `id` of the user (same as Knowlege base kb) 
+    + user (required, string, `demo`) ... `id` of the user (same as Knowlege base kb)
+
+### Change user password [PUT]
+Changes the password of EKB APIs user.
+
+*Password requirements*:
+
++ at least 6 characters and maximum of 20,
++ must contains one digit from 0-9,
++ must contains one lowercase characters,
++ must contains one uppercase characters.
+   
++ Request
+
+    + Body
+    
+            Newpassword#1
+            
++ Response 200
 
 
 ## SPARQL Query [/{kb}/sparql{?query}]
@@ -213,39 +433,7 @@ It supports also unencoded paylout when  Content-Type header is set to "applicat
 + Response 200
 
     [SPARQL Query][]
-
-
-## SPARQL Query cache management [/{kb}/sparql/cache]
-
-EKB implements a strong sparql private cache management. Cache is optimized to
-work with automated ingestion APIs. These APIs allow to control sparql cache.
-
-
-+ Parameters
-    + kb (required, string, `demo`) ... `id` of the Knowlege base  
     
-    
-### Get sparql cache status [GET]
-
-Returns sparql cache size and the time used to compute it.
-
-
-+ Response 200 (application/json)
-
-    + Body
-
-            {
-              "totalSize": 520847,
-              "elapsedTime": 0.010123014450073
-            }  
-
-
-### Invalidate sparql cache [DELETE]
-Erase the sparql cache to clean  disk storage.
-
-
-+ Response 200
-
 
 ## SPARQL Update [/{kb}/sparql/update]
 
@@ -282,22 +470,22 @@ It supports also unencoded paylout when  Content-Type header is set to "applicat
 
 
 ## Querystore  [/{kb}/querystore]
-TBD
 
 ### Execute and inspect a stored query [GET]
 
 + Response 200
 
+## Export tabular data  [/{kb}/table]
+
+### Get a sparql query select result as a file [GET]
+
++ Response 200
+
+
 ## Graphstore  [/{kb}/graphstore]
 Partial implementation of SPARQL 1.1. graphstore protocol. 
 
 ### Get named graph contents [GET]
-
-+ Response 200
-
-## Table view  [/{kb}/table]
-
-### Get select result as a file [GET]
 
 + Response 200
 
@@ -442,200 +630,4 @@ Display the RDF graph containg all activity ingestion report.
 ### Delete activity report [DELETE]
 Deletes the activity ingestion report graph. 
 
-+ Response 200
-
-
-## Knowledge Base configuration [/{kb}]
-
-This API allows to set/modify and delete a Knowledge Base and its configuration.
-
-+ Parameters
-    + kb (required, string, `demo`) ... `id` of the Knowlege base  
-
-### Get Knowledge Base configuration [GET]
-
-Returns the knowledge base configuration as an RDF document.
-
-+ Request (text/turtle)
-            
-+ Response 200
-
-
-    + Body
-    
-            @prefix kees: <http://linkeddata.center/kees/v1#> .
-            [] kees:source <http://linkeddata.center/project/kees/master/v1/introspection.ttl> .
-
-
-### Change Knowledge Base configuration [PUT]
-
-Substitutes the knowledge base configuration with the request body content. All missing properties and default
-values are inferred from kees ontology restrictions and axioms.
-
-+ Request (text/turtle)
-            
-    + Body
-
-            @prefix kees: <http://linkeddata.center/kees/v1#> .
-            [] kees:source <http://data.example.com/file1.ttl> .
-
-            
-+ Response 200
-
-            
-### Empty the Knowledge Base [DELETE]
-
-This API delete knowledge base configuration. It is equivalent to a call to
-*sparql/update* with command: DROP SILENT ALL 
-
-+ Response 200
-
-
-## Knowledge Base locking [/{kb}/lock]
-
-This API allows to set/modify and delete a Knowledge Base locks.
-
-+ Parameters
-    + kb (required, string, `demo`) ... `id` of the Knowlege base  
-
-### Get Knowledge Base lock status [GET]
-
-Returns the knowledge base lock status.
-
-            
-+ Response 200 (application/json)
-
-
-    + Body
-    
-            {"id":"demo","locked":false}
-
-
-### Set a lock to the Knowledge Base [PUT]
-
-Tries to set a lock to knowledge base and returns the knowledge base lock status.
-            
-+ Response 200 (application/json)
-
-
-    + Body
-    
-            {"id":"demo","locked":true}
-
-### Remove any Knowledge Base locks [DELETE]
-
-Remove any lock to Knowledge base  and returns the knowledge base lock status.
-            
-+ Response 200 (application/json)
-
-
-    + Body
-    
-            {"id":"demo","locked":false}
-
-
-## Knowledge Base profile management [/{kb}/profile]
-
-This API allows to set/modify and delete a Knowledge Base profile definition.
-
-+ Parameters
-    + kb (required, string, `demo`) ... `id` of the Knowlege base  
-
-### Get Knowledge Base profile [GET]
-
-Returns the knowledge base profile.
-
-            
-+ Response 200 (application/json)
-
-
-    + Body
-    
-            {
-              "driverArgs": {
-                "endpointTemplate": "http://{user}:{password}@sd1.linkeddata.center:5820/{kbid}/query",
-                "timeout": 600
-              },
-              "isPublic": true,
-              "isReadonly": true,
-              "ingestionAgencyEndpoint": "",
-              "driver": "Sparql11",
-              "provider": "config",
-              "vars": {
-                "user": "demo",
-                "password": "****",
-                "kbid": "demo"
-              }
-            }
-
-
-### Set Knowledge Base profile [PUT]
-
-Sets the knowledge base profile.
-            
-+ Request (application/json)
-
-    + Body
-    
-            {
-              "driverArgs": {
-                "endpointTemplate": "http://{user}:{password}@sd1.linkeddata.center:5820/{kbid}/query",
-                "timeout": 600
-              },
-              "isPublic": true,
-              "isReadonly": true,
-              "ingestionAgencyEndpoint": "",
-              "driver": "Sparql11",
-              "provider": "config",
-              "vars": {
-                "user": "demo",
-                "password": "****",
-                "kbid": "demo"
-              }
-            }
-
-
-+ Response 200
-
-## Knowledge Base profile cache management [/{kb}/profile/cache]
-
-This API allows to delete the cache about Knowledge Base profile (debug purpose).
-
-+ Parameters
-    + kb (required, string, `demo`) ... `id` of the Knowlege base  
-
-### Invalidate Knowledge Base profile cache [DELETE]
-
-Empty knowledge base profile cache,
-
-            
-+ Response 200
-
-
-## User management [/{kb}/user/{user}/pwd]
-
-This API allows to change the user profile used for authentication.
-
-+ Authorization ... [Base64](http://en.wikipedia.org/wiki/Base64) encoded string literal in form _"username:password"_ preceeded by authorization method and its space.
-
-+ Parameters
-    + kb (required, string, `demo`) ... `id` of the user (same as Knowlege base kb) 
-    + user (required, string, `demo`) ... `id` of the user (same as Knowlege base kb)
-
-### Change user password [PUT]
-Changes the password of the knowledge admin user.
-
-*Password requirements*:
-   at least 6 characters and maximum of 20,
-   must contains one digit from 0-9,
-   must contains one lowercase characters,
-   must contains one uppercase characters,
-   must contains one special symbols in the list **@#$%**.
-   
-+ Request
-
-    + Body
-    
-            Newpassword#1
-            
 + Response 200
