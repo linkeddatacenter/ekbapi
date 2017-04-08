@@ -471,11 +471,21 @@ It supports also unencoded paylout when  Content-Type header is set to "applicat
 
 ## Querystore  [/{kb}/querystore]
 
++ Parameters
+    + kb (required, string, `demo`) ... `id` of the Knowlege base
+
 ### Execute and inspect a stored query [GET]
 
 + Response 200
 
-## Export tabular data  [/{kb}/table]
+## Export tabular data  [/{kb}/table/{dbid}/{table_id}]
+
+
++ Parameters
+    + kb (required, string, `demo`) ... `id` of the Knowlege base
+    + dbid (required, string, `view`) ... `id` a namespace identifier for a table name
+    + table_id (required, string, `tablename.csv`) ...  an namespace for a table. Must end with valid extension (json|csv|xml)  
+
 
 ### Get a sparql query select result as a file [GET]
 
