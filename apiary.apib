@@ -20,11 +20,6 @@ A knowledge base configuration contains:
 
 The knowlege base configuration can include other configurations and can be shared with other KB.
 
-A minimal KB configuration is something like this example:
-
-        @prefix kees: <http://linkeddata.center/kees/v1#> .
-        [] kees:source <http://linkeddata.center/project/kees/master/v1/introspection.ttl> .
-
 See [more examples of configuration description in this article](http://linkeddata.center/help/devop/kees-profile).    
 
 Beside configuration, the *knowledge base profile* define the RDF storage engine driver, acls and other tecnical parameters.
@@ -58,19 +53,6 @@ Depending from your knowledge base profile some APIs can be unavailable.
 | /{kb}/table/{dbId}/{tableId}.json | X   |     |      |        |  json       | tabular data  export |
 | /{kb}/table/{dbId}/{tableId}.xml | X   |     |      |        |  xml       | tabular data  export |
 | /{kb}/table/{dbId}/{tableId}.csv | X   |     |      |        |  csv       | tabular data  export |
-
-
-## Automated ingestion APIs
-
-These APIs allow you to rrun an *ingestion agent* that keeps the knowledge base updated 
-according with the knowledge base configuration. 
-The requested ingestion activities are execute asincronoulsy.
-
-| Resource              | GET | PUT | POST | DELETE | Returns | Service Description |
-|-----------------------|-----|-----|------|--------|--------|---------------------|
-| /{kb}/activities      | X   |     | X    | X      | RDF   | data ingestion planning and monitoring |
-| /{kb}/activity/{id}   | X   |     |      | X      | RDF   | data ingestion activity report |
-
 
 
 
@@ -454,11 +436,7 @@ All HTTP requests that are mutative (add or remove) must include a valid Content
 The body of the request should be same form-encoded parameters of the SPARQL Query  variant.
 
 It supports also unencoded paylout when  Content-Type header is set to "application/sparql-update"
-
-+ Parameters
-    + update (optional, string, `DROP%20ALL`) ... url encoded sparql query.
-
-
+Removed ingestion apis
 
 + Request (application/sparql-update)
 
@@ -496,148 +474,5 @@ It supports also unencoded paylout when  Content-Type header is set to "applicat
 Partial implementation of SPARQL 1.1. graphstore protocol. 
 
 ### Get named graph contents [GET]
-
-+ Response 200
-
-
-## Data ingestion activities management [/{kb}/activities]
-
-This API allows to populate the knowledge base by driving all four KEES windows 
-(Booting, Learning and Reasoning) . 
-
-Ingestion tasks are executed asyncronusly as soon as there are enough 
-resources available in the system.
-
-Each ingestion activity is provided with an unique id in the knowledge base. 
-The activity state can be inspected before, after and during execution.
-Ingestion activity reports are stored in named graphs.
-By default, ingestion activity reports are retained for one day before to be purged.
-
-+ Authorization ... [Base64](http://en.wikipedia.org/wiki/Base64) encoded string literal in form _"username:password"_ preceeded by authorization method and its space.
-
-
-### List activities [GET]
-Lists ingestion activities with their status (pending, running, complete, etc). 
-
-
-+ Response 200 (application/json)
-
-    + Body
-    
-            {
-              "head": {
-                "vars": [
-                  "activityId",
-                  "keesCycle",
-                  "status",
-                  "submittedOn",
-                  "started",
-                  "ended"
-                ]
-              },
-              "results": {
-                "bindings": [
-                  {
-                    "submittedOn": {
-                      "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
-                      "type": "literal",
-                      "value": "2016-02-28T22:27:21Z"
-                    },
-                    "status": {
-                      "type": "literal",
-                      "value": "completed"
-                    },
-                    "started": {
-                      "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
-                      "type": "literal",
-                      "value": "2016-02-28T22:27:21Z"
-                    },
-                    "ended": {
-                      "datatype": "http://www.w3.org/2001/XMLSchema#dateTime",
-                      "type": "literal",
-                      "value": "2016-02-28T22:32:25Z"
-                    },
-                    "activityId": {
-                      "type": "literal",
-                      "value": "56d374499cbfd"
-                    },
-                    "keesCycle": {
-                      "type": "literal",
-                      "value": "booting => learning => reasoning"
-                    }
-                  }
-                ]
-              }
-            }
-    
-
-
-### Request a data ingestion activity [POST]
-Ask for a new kees cycle to be executed as soon as possible.
-
-Accepts "plan" x-www-form-urlencoded var with one of following values: "learning => reasoning"(default),
-"booting => learning => reasoning", "booting"
-
-
-+ Request (application/x-www-form-urlencoded)
-
-    + Body
-
-            plan=learning => reasoning
-        
-+ Response 201
-
-    + Headers
-    
-            Location: activty/5524e9cd08584
-            
-
-### Delete all data ingestion activity reports [DELETE]
-
-Deletes all pending tasks. With no parameters delete activities that have to be purged. 
-
-            
-+ Response 200
-
-
-## Ingestion activity report [/{kb}/activity/{activityId}]
-
-This API shows or delete a specific activity report graph. 
-
-+ Authorization ... [Base64](http://en.wikipedia.org/wiki/Base64) encoded string literal in form _"username:password"_ preceeded by authorization method and its space.
-
-
-### Show activity report [GET]
-Display the RDF graph containg all activity ingestion report.
-
-
-+ Request
-
-    + Headers
-    
-            Accept: text/turtle
-
-+ Response 200 (text/turtle)
-            
-    + Body
- 
-            @prefix kees: <http://linkeddata.center/kees/v1#> .
-            @prefix dct: <http://purl.org/dc/terms/> .
-            
-            <urn:kees:kb> kees:hasIngestionActivityReportGraph <https://hub1.linkeddata.center/demo/resource/2da666eb08f4a7b20e2c299e47999c65> .
-            
-            <https://hub1.linkeddata.center/demo/activity/56d374499cbfd> <http://www.w3.org/2000/01/rdf-schema#comment> "This document will be deleted after 2016-02-29T00:00:00+00:00." ;
-              dct:description "This document describes all activities related to the data ingestion request 56d374499cbfd submitted on 2016-02-28T22:27:21+00:00." ;
-              dct:title "Data ingestion report 56d374499cbfd" ;
-              <http://www.w3.org/ns/prov#generatedAtTime> "2016-02-28T22:27:21Z"^^<http://www.w3.org/2001/XMLSchema#dateTime> ;
-              <http://www.w3.org/ns/prov#wasAttributedTo> _:node1ackvqvr0x1 ;
-              <http://xmlns.com/foaf/0.1/primaryTopic> <https://hub1.linkeddata.center/demo/resource/56d374499ccec> .
-            .... other rdf statemenst here
-
-
-
-
-### Delete activity report [DELETE]
-Deletes the activity ingestion report graph. 
 
 + Response 200
