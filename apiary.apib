@@ -51,21 +51,31 @@ Depending from your knowledge base profile some APIs can be unavailable.
 
 | Resource              | GET | PUT | POST | DELETE | Returns | Service Description |
 |-----------------------|-----|-----|------|--------|--------|---------------------|
-| /{kb}/sparql          | X   |     | X    |        | RDF   | Sparql Query endpoint | 
-| /{kb}/sparql/update   |     |     | X    |        | RDF   | Sparql Update endpoint |
-| /{kb}/graphstore      | X   |     |      |        | RDF   | graphstore management |
-| /{kb}/queries         | X   |     |      |        | RDF   | Queries list |
-| /{kb}/querystore      | X   |     |      |        | RDF   | Querystore management |
+| /{kb}/sparql          | X   |     | X    |        | RDF*   | Sparql Query endpoint | 
+| /{kb}/queries         | X   |     |      |        | RDF*   | Queries list |
+| /{kb}/querystore      | X   |     |      |        | RDF*   | Querystore management |
 | /{kb}/table/{dbId}/{tableId}.json | X   |     |      |        |  json       | tabular data  export |
 | /{kb}/table/{dbId}/{tableId}.xml | X   |     |      |        |  xml       | tabular data  export |
 | /{kb}/table/{dbId}/{tableId}.csv | X   |     |      |        |  csv       | tabular data  export |
 
+(*) with content negotiation
 
+## Pass Through knowledge base access APIs
+
+These APIs allow to bypass the caching and the lockin engine.
+
+| Resource              | GET | PUT | POST | DELETE | Returns | Service Description |
+|-----------------------|-----|-----|------|--------|--------|---------------------|
+| /{kb}/ptsparql          | X   |     | X    |        | RDF   | Sparql Query endpoint | 
+| /{kb}/ptsparql/update   |     |     | X    |        | RDF   | Sparql Update endpoint |
+| /{kb}/graphstore      | X   |     |      |        | RDF   | graphstore management |
+
+N.B. cache can be disabled also with proper http headers
 
 ## APIs autentication
 
 To access eKB APIs, depending from you profile, you  need to provide your credentials using
-[http basic authentication](http://en.wikipedia.org/wiki/Basic_access_authentication):
+[http basic authentication](https://www.ietf.org/rfc/rfc2617.txt):
 
 + Authorization ... [Base64](http://en.wikipedia.org/wiki/Base64) encoded string literal in form _"username:password"_ preceeded by authorization method and its space.
 
