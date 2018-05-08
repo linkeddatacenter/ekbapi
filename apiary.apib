@@ -8,10 +8,16 @@ eKB is a set of RESTful APIs designed by [LinkedData.Center](http://LinkedData.C
 query a RDF graph database compliant with the [Semantic Web](http://www.w3.org/standards/semanticweb/) technologies. 
 
 LinkedData.Center provides access to an instance of an RDF graph database where infomation are organized in as a set
-of named graphs.  The union of all named graphs are refered as **knowledge base**.
+of named graphs providing:
 
-eKB APIs provide a SPARQL Query endpoint and a SPARQL Update endpoint both through standard SPARQL protocol. Both Version 1.1 and 1.0 supported.
-GRAPH. Also SPARQL GRAPH protocol access is partially supported.
+- a SPARQL Query 1.1 endpoint with service description support
+- a SPARQL Update 1.1 endpoint with service description support
+- access throug https and SPARQL protocol 1.1
+- partial support to SPARQL GRAPH protocol 1.1.
+- a single  standard frontend for different graph db tecnologies (i.e. AWS Neptune, Blazegraph, Stardog, etc.)
+- add an extra security and authentication layer (customizable)
+- support http payload compression
+- support CORS
 
 eKB APIs recognize the RDF Graph database as a  *Knowledge Base* described with the [KEES Language Profile](http://LinkedData.Center/kees). 
 
@@ -20,11 +26,7 @@ eKB APIs leverage KEES specifications  to:
 - provide accelerated (i.e. cached) access to data
 - managing knowledge base version
 - get a RESTFull access to data based on the predefinited parametric queries
-- add an extra security and authentication layer (customizable)
-- provide a unique standard frontend for different graph db tecnologies (i.e. AWS Neptune, Blazegraph, Stardog, etc.)
-- lock the Graph Database during update (ensuri consistences)
-- support payload compression
-- support CORS
+- lock the Graph Database during update 
 
 eKB APIs are compatible with all LinkedData.Center products (i.e. SDaaS, SGaaS, Enterprise, etc. etc.) 
 
