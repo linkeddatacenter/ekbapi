@@ -12,8 +12,9 @@ of named graphs providing:
 
 - a SPARQL Query 1.1 endpoint with service description support
 - a SPARQL Update 1.1 endpoint with service description support
-- access throug https and SPARQL protocol 1.1
+- access through https and SPARQL protocol 1.1
 - partial support to SPARQL GRAPH protocol 1.1.
+- partial support of the Linked Data Platform sepcifications (LDP)
 - a single  standard frontend for different graph db tecnologies (i.e. AWS Neptune, Blazegraph, Stardog, etc.)
 - add an extra security and authentication layer (customizable)
 - support http payload compression
@@ -26,7 +27,7 @@ eKB APIs leverage KEES specifications  to:
 - provide accelerated (i.e. cached) access to data
 - managing knowledge base version
 - get a RESTFull access to data based on the predefinited parametric queries
-- lock the Graph Database during update 
+- guarantee the consistence of the graph database, avoiding queries durning updates. 
 
 eKB APIs are compatible with all LinkedData.Center products (i.e. SDaaS, SGaaS, Enterprise, etc. etc.) 
 
@@ -64,7 +65,7 @@ Depending from your knowledge base profile some APIs can be unavailable.
 
 ## Pass Through knowledge base access APIs
 
-These APIs allow to bypass the caching and the lockin engine.
+These APIs allow to bypass the caching engine and the lock guard.
 
 | Resource              | GET | PUT | POST | DELETE | Returns | Service Description |
 |-----------------------|-----|-----|------|--------|--------|---------------------|
